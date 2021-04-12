@@ -10,33 +10,12 @@ import AddOptions from "./screens/AddOptions";
 const App = () => {
   return (
     <Router>
-      <Scene key="App">
-        <Scene
-          key="Home"
-          component={Home}
-          initial={true}
-          titleStyle={headColor.titleStyle}
-        />
-        <Scene
-          key="Lesson"
-          component={Lesson}
-          titleStyle={headColor.titleStyle}
-        />
-        <Scene
-          key="Streaming"
-          component={Streaming}
-          titleStyle={headColor.titleStyle}
-        />
-        <Scene
-          key="Holiday"
-          component={Holiday}
-          titleStyle={headColor.titleStyle}
-        />
-        <Scene
-          key="AddOptions"
-          component={AddOptions}
-          titleStyle={headColor.titleStyle}
-        />
+      <Scene key="App" titleStyle={headColor.titleStyle}>
+        <Scene key="Home" component={Home} initial={true} />
+        <Scene key="Lesson" component={Lesson} />
+        <Scene key="Streaming" component={Streaming} />
+        <Scene key="Holiday" component={Holiday} />
+        <Scene key="AddOptions" component={AddOptions} />
       </Scene>
     </Router>
   );
