@@ -3,66 +3,146 @@ import React, { useState } from "react";
 import { FAB, IconButton, Colors, Button } from "react-native-paper";
 import { Actions } from "react-native-router-flux";
 import RNPickerSelect from "react-native-picker-select";
-import { Text, View, Image, StyleSheet, FlatList, Picker } from "react-native";
-const sectionsHour = [];
-const sectionsMinute = [];
-var a = 0;
-var u = 0;
-var i = 0;
+import { Text, View, Image, Alert, StyleSheet, FlatList } from "react-native";
+
+var IndexOfItemsBegin = 0;
+var IndexOfItemsEnd = 0;
+
 const Streaming = (props) => {
-  const [selectedValue, setSelectedValue] = useState("");
-  const update = (props) => {
-    sectionsHour.splice(0, sectionsHour.length);
-    for (u = 0; u < props.options.length; u++) {
-      sectionsHour.push(0);
-      sectionsMinute.push(0);
-    }
-  };
+  const [sectionhBegin, setSectionhBegin] = useState("null");
+  const [sectionmBegin, setSectionmBegin] = useState("null");
+
+  const [sectionhEnd, setSectionhEnd] = useState("null");
+  const [sectionmEnd, setSectionmEnd] = useState("null");
+
   const options = props.options;
-  const options_id = props.options_id;
-  const section1 = () => {
-    return (
-      <View style={{ flex: 1 , flexDirection:"row", justifyContent:"flex-start"}}>
-        <View style={{ flex:0.50}}>
-          <Picker
-            selectedValue={selectedValue}
-            style={{
-              margin: 1,
-              borderRadius: 10,
-            }}
-            onValueChange={(itemValue) => setSelectedValue(itemValue)}
-          >
-            {optionsItems}
-          </Picker>
-        </View>
-        <View style={{ flex:0.40}}>
-          <Text>sadsad</Text>
-        </View>
-        <View style={{ flex:0.10}}>
-        <IconButton
-    icon="send"
-    color={Colors.red800}
-    size={20}
-    onPress={() => {fff()}}
-  />
-        </View>
-      </View>
-    );
+
+  const hours = props.hours;
+  const minutes = props.minutes;
+
+  const sectionsHoursBegin = props.sectionsHoursBegin;
+  const sectionsMinutesBegin = props.sectionsMinutesBegin;
+
+  const sectionsHoursEnd = props.sectionsHoursEnd;
+  const sectionsMinutesEnd = props.sectionsMinutesEnd;
+
+  const text0 = props.text0;
+  const text1 = props.text1;
+
+  const up = (K, Type) => {
+    //Index numaralarında değişiklik
+    //K: up/down up:1
+    //Type:0 Begin, Type:1 End
+    if (Type == 0) {
+      //IndexOfItemsBegin
+      if (K == 1) {
+        if (IndexOfItemsBegin != options.length - 1)
+          IndexOfItemsBegin = IndexOfItemsBegin + 1;
+      } else {
+        if (IndexOfItemsBegin != 0) IndexOfItemsBegin = IndexOfItemsBegin - 1;
+      }
+    } else if (Type == 1) {
+      //IndexOfItemsEnd
+      if (K == 1) {
+        if (IndexOfItemsEnd != options.length - 1)
+          IndexOfItemsEnd = IndexOfItemsEnd + 1;
+      } else {
+        if (IndexOfItemsEnd != 0) IndexOfItemsEnd = IndexOfItemsEnd - 1;
+      }
+    }
+    Actions.refresh();
   };
-  const fff = () => {
-return (
-  <Text style={{ flex:1}}>
-    asdasd
-  </Text>
-)
-  }
-  const optionsItems = options.map((s, i) => {
-    return <Picker.Item key={i} value={s} label={s} color="purple" />;
-  });
+
+  const upgradeTime = (Type) => {
+    //Saatleri güncelleme
+    //Type:0 Begin, Type:1 End
+    if (Type == 0) {
+      if (sectionhBegin != "null") {
+        sectionsHoursBegin[IndexOfItemsBegin] = sectionhBegin;
+      } else {
+        sectionsHoursBegin[IndexOfItemsBegin] = "null";
+      }
+      if (sectionmBegin != "null") {
+        sectionsMinutesBegin[IndexOfItemsBegin] = sectionmBegin;
+      } else {
+        sectionsMinutesBegin[IndexOfItemsBegin] = "null";
+      }
+    }
+    if (Type == 1) {
+      if (sectionhEnd != "null") {
+        sectionsHoursEnd[IndexOfItemsEnd] = sectionhEnd;
+      } else {
+        sectionsHoursEnd[IndexOfItemsEnd] = "null";
+      }
+      if (sectionmEnd != "null") {
+        sectionsMinutesEnd[IndexOfItemsEnd] = sectionmEnd;
+      } else {
+        sectionsMinutesEnd[IndexOfItemsEnd] = "null";
+      }
+    }
+    Actions.refresh();
+  };
+
+  const maxControl = () => {
+    //Sayfa açılırken index numaralarının 0 ile size-1 ayarı.(index olarak)
+    if (IndexOfItemsBegin > options.length - 1 && options.length - 1 != -1) {
+      IndexOfItemsBegin = options.length - 1;
+    }
+
+    if (IndexOfItemsEnd > options.length - 1 && options.length - 1 != -1) {
+      IndexOfItemsEnd = options.length - 1;
+    }
+  }; //Sayfa açılınca ilk yapılan işlem olduğundan Actions.refresh() ekleme gereği görmedim -gereksiz-.
+
+  const submitData = () => {
+    fetch("http://305f51e69f59.ngrok.io/send-data", {
+      method: "post",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        text0: text0,
+        text1: text1,
+        sectionsMinutesBegin: sectionsMinutesBegin,
+        sectionsHoursBegin: sectionsHoursBegin,
+        sectionsMinutesEnd: sectionsMinutesEnd,
+        sectionsHoursEnd: sectionsHoursEnd,
+      }),
+    })
+      .then((res) => res.json())
+      .then((data) => console.log(data))
+      .catch();
+  };
+
+  const hoursItems = (hours) => {
+    //RNPickerSelect item için gerekli dizi tanımlanması.(Saat kısmı)
+    let liste = [];
+    for (let i = 0; i < 24; i++) {
+      liste.push({
+        label: `${hours[i]}`,
+        value: `${hours[i]}`,
+        id: `${hours[i]}`,
+      });
+    }
+    return liste;
+  };
+  const minutesItems = (minutes) => {
+    //RNPickerSelect item için gerekli dizi tanımlanması.(Dakika kısmı)
+    let liste = [];
+    for (let i = 0; i < 60; i++) {
+      liste.push({
+        label: `${minutes[i]}`,
+        value: `${minutes[i]}`,
+        id: `${minutes[i]}`,
+      });
+    }
+  
+    return liste;
+  };
 
   return (
     <View style={{ flex: 1, backgroundColor: "grey" }}>
-      <View>{update(props)}</View>
+      <View>{maxControl()}</View>
       <View>
         <Image
           style={{
@@ -82,7 +162,10 @@ return (
           onPress={() =>
             props.navigation.navigate("AddOptions", {
               options: options,
-              options_id: options_id,
+              sectionsMinutesBegin: sectionsMinutesBegin,
+              sectionsHoursBegin: sectionsHoursBegin,
+              sectionsMinutesEnd: sectionsMinutesEnd,
+              sectionsHoursEnd: sectionsHoursEnd,
             })
           }
           small={true}
@@ -99,7 +182,7 @@ return (
             fontWeight: "bold",
           }}
         >
-          {props.text0}
+          {text0}
         </Text>
         <Text
           style={{
@@ -119,13 +202,156 @@ return (
             fontWeight: "bold",
           }}
         >
-          {props.text1}
+          {text1}
         </Text>
       </View>
       <View
-        style={{ flexDirection: "row", flex: 1, justifyContent: "flex-start" }}
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-around",
+          height: 40,
+        }}
       >
-        {section1()}
+        <View>
+          <IconButton
+            icon="arrow-up-box"
+            color={Colors.red800}
+            size={20}
+            onPress={() => {
+              up(1, 0);
+            }}
+          />
+        </View>
+        <View style={{ marginTop: 10 }}>
+          <Text style={{ textAlign: "center", color: "#33ffff" }}>
+            Index {IndexOfItemsBegin}
+          </Text>
+        </View>
+        <View>
+          <IconButton
+            icon="arrow-down-box"
+            color={Colors.red800}
+            size={20}
+            onPress={() => {
+              up(-1, 0);
+            }}
+          />
+        </View>
+        <View style={{ width: 100, marginTop: 7 }}>
+          <RNPickerSelect
+            style={pickerStyle}
+            placeholder={{
+              label: "Hour",
+              value: "null",
+            }}
+            onValueChange={(value) => setSectionhBegin(value)}
+            useNativeAndroidPickerStyle={false}
+            items={hoursItems(hours)}
+          />
+        </View>
+
+        <View style={{ width: 100, marginTop: 7 }}>
+          <RNPickerSelect
+            style={pickerStyle}
+            placeholder={{
+              label: "Minute",
+              value: "null",
+            }}
+            onValueChange={(value) => setSectionmBegin(value)}
+            useNativeAndroidPickerStyle={false}
+            items={minutesItems(minutes)}
+          />
+        </View>
+
+        <View style={{ marginTop: -3 }}>
+          <IconButton
+            icon="send-circle-outline"
+            color={Colors.orange900}
+            size={25}
+            onPress={() => {
+              upgradeTime(0);
+            }}
+          />
+        </View>
+      </View>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-around",
+          height: 40,
+        }}
+      >
+        <View>
+          <IconButton
+            icon="arrow-up-box"
+            color={Colors.red800}
+            size={20}
+            onPress={() => {
+              up(1, 1);
+            }}
+          />
+        </View>
+        <View style={{ marginTop: 10 }}>
+          <Text style={{ textAlign: "center", color: "#33ffff" }}>
+            Index {IndexOfItemsEnd}
+          </Text>
+        </View>
+        <View>
+          <IconButton
+            icon="arrow-down-box"
+            color={Colors.red800}
+            size={20}
+            onPress={() => {
+              up(-1, 1);
+            }}
+          />
+        </View>
+        <View style={{ width: 100, marginTop: 7 }}>
+          <RNPickerSelect
+            style={pickerStyle}
+            placeholder={{
+              label: "Hour",
+              value: "null",
+            }}
+            onValueChange={(value) => setSectionhEnd(value)}
+            useNativeAndroidPickerStyle={false}
+            items={hoursItems(hours)}
+          />
+        </View>
+
+        <View style={{ width: 100, marginTop: 7 }}>
+          <RNPickerSelect
+            style={pickerStyle}
+            placeholder={{
+              label: "Minute",
+              value: "null",
+            }}
+            onValueChange={(value) => setSectionmEnd(value)}
+            useNativeAndroidPickerStyle={false}
+            items={minutesItems(minutes)}
+          />
+        </View>
+
+        <View style={{ marginTop: -3 }}>
+          <IconButton
+            icon="send-circle-outline"
+            color={Colors.orange900}
+            size={25}
+            onPress={() => {
+              upgradeTime(1);
+            }}
+          />
+        </View>
+      </View>
+
+      <View style={{ flex: 1, margin: 2 }}>
+        <FlatList
+          nestedScrollEnabled={true}
+          data={options}
+          renderItem={({ item }) => {
+            return renderList(props, item);
+          }}
+        />
       </View>
       <View>
         <Button
@@ -133,12 +359,7 @@ return (
           style={{ margin: 1, borderRadius: 10 }}
           icon="check-all"
           mode="contained"
-          onPress={() =>
-            props.navigation.navigate("Streaming", {
-              options: options,
-              options_id: options_id,
-            })
-          }
+          onPress={() => submitData()}
         >
           Complete
         </Button>
@@ -148,9 +369,11 @@ return (
 };
 
 const renderList = (props, item) => {
-  const hours = props.hours;
-  const minutes = props.minutes;
-  const options_id = props.options_id;
+  const sectionsHoursBegin = props.sectionsHoursBegin;
+  const sectionsMinutesBegin = props.sectionsMinutesBegin;
+
+  const sectionsHoursEnd = props.sectionsHoursEnd;
+  const sectionsMinutesEnd = props.sectionsMinutesEnd;
   return (
     <View
       style={{
@@ -161,7 +384,6 @@ const renderList = (props, item) => {
         margin: 5,
         alignItems: "center",
         flexDirection: "row",
-        justifyContent: "flex-start",
       }}
     >
       <View>
@@ -171,77 +393,34 @@ const renderList = (props, item) => {
         <Text
           style={{
             textAlign: "left",
-            width: 275,
             fontSize: 16,
             fontStyle: "italic",
             fontWeight: "bold",
             color: "black",
+            width: 220,
           }}
         >
           {item}
         </Text>
       </View>
-
-      <View style={{ width: 40 }}>
-        <RNPickerSelect
-          style={pickerStyle}
-          onValueChange={(value) => sectionsHour.splice(0, 1)}
-          //useNativeAndroidPickerStyle={false}
-          items={[
-            { label: `${hours[0]}`, value: `${hours[0]}`, id: `${hours[0]}` },
-            { label: `${hours[1]}`, value: `${hours[1]}`, id: `${hours[1]}` },
-            { label: `${hours[2]}`, value: `${hours[2]}`, id: `${hours[2]}` },
-            { label: `${hours[3]}`, value: `${hours[3]}`, id: `${hours[3]}` },
-          ]}
-        />
+      <View style={{ width: 50, alignItems: "center" }}>
+        <Text style={{ color: "purple", backgroundColor: "black" }}>
+          |Begin|
+        </Text>
+        <Text style={{ color: "purple", backgroundColor: "black" }}>|End|</Text>
       </View>
-
-      <View style={{ textAlign: "center" }}>
-        <Text>:</Text>
-      </View>
-
-      <View style={{ width: 40 }}>
-        <RNPickerSelect
-          style={pickerStyle}
-          onValueChange={(value) => sectionsMinute.push(value)}
-          //useNativeAndroidPickerStyle={false}
-          items={[
-            {
-              label: `${minutes[0]}`,
-              value: `${minutes[0]}`,
-              id: `${minutes[0]}`,
-            },
-            {
-              label: `${minutes[1]}`,
-              value: `${minutes[1]}`,
-              id: `${minutes[1]}`,
-            },
-            {
-              label: `${minutes[2]}`,
-              value: `${minutes[2]}`,
-              id: `${minutes[2]}`,
-            },
-            {
-              label: `${minutes[3]}`,
-              value: `${minutes[3]}`,
-              id: `${minutes[3]}`,
-            },
-          ]}
-        />
+      <View style={{ width: 100, alignItems: "center" }}>
+        <Text style={styles.clock}>
+          {sectionsHoursBegin[item.slice(0, 1)]} :{" "}
+          {sectionsMinutesBegin[item.slice(0, 1)]}
+        </Text>
+        <Text style={styles.clock}>
+          {sectionsHoursEnd[item.slice(0, 1)]} :{" "}
+          {sectionsMinutesEnd[item.slice(0, 1)]}
+        </Text>
       </View>
     </View>
   );
-};
-const pickerStyle = {
-  placeholder: {
-    color: "red",
-  },
-  inputAndroid: {
-    color: "white",
-    paddingHorizontal: 10,
-    backgroundColor: "red",
-    borderRadius: 5,
-  },
 };
 const styles = StyleSheet.create({
   header: {
@@ -249,5 +428,22 @@ const styles = StyleSheet.create({
     justifyContent: "space-around",
     backgroundColor: "#fc0352",
   },
+  clock: {
+    color: "green",
+    paddingHorizontal: 10,
+    backgroundColor: "black",
+  },
 });
+const pickerStyle = {
+  placeholder: {
+    color: "blue",
+  },
+  inputAndroid: {
+    color: "green",
+    paddingHorizontal: 10,
+    backgroundColor: "black",
+    borderRadius: 15,
+  },
+};
+
 export default Streaming;

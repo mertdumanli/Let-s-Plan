@@ -1,38 +1,39 @@
 import React, { useState } from "react";
-import { Text, View, Picker, Image} from "react-native";
+import { Text, View, Picker, Image } from "react-native";
 import { Actions } from "react-native-router-flux";
-
 import { Card, RadioButton, Button, TextInput } from "react-native-paper";
-const hours = [];//saatler için, en aşağıda içi dolduruldu
-const minutes = [];//dakikalar için, en aşağıda içi dolduruldu
-const options = ["null"];//Streaming bölümünde eklenecek program isimleri için, aynı zamanda label ve value tutacak.
-const options_id = ["null"];//options dizisindekilerle eş zamanlı unique key listelemek için
-
-const Home = ({navigation: {navigate}}) => {
-  const [value, setValue] = useState('Streaming');
-  const [selectedValue, setSelectedValue] = useState('Streaming');
-  const [text0, setText0] = useState('');
-  const [text1, setText1] = useState('');
+const hours = []; //saatler için, en aşağıda içi dolduruldu
+const minutes = []; //dakikalar için, en aşağıda içi dolduruldu
+const options = ["null"]; //Streaming bölümünde eklenecek program isimleri için, aynı zamanda label ve value tutacak.(aynı)
+const sectionsHoursBegin = ["null"];
+const sectionsMinutesBegin = ["null"];
+const sectionsHoursEnd = ["null"];
+const sectionsMinutesEnd = ["null"];
+const Home = ({ navigation: { navigate } }) => {
+  const [value, setValue] = useState("Streaming"); //Yeni Plan oluştururken seçim
+  const [selectedValue, setSelectedValue] = useState("Streaming"); //Varolan planlardan gösterim için seçim
+  const [text0, setText0] = useState("null"); //Designer name
+  const [text1, setText1] = useState("null"); //Plan name
   const CreateActionsDirection = () => {
     if (value === "Streaming") {
       navigate("Streaming", {
-        value: value,
         text0: text0,
         text1: text1,
         hours: hours,
         minutes: minutes,
         options: options,
-        options_id: options_id
+        sectionsHoursBegin: sectionsHoursBegin,
+        sectionsMinutesBegin: sectionsMinutesBegin,
+        sectionsHoursEnd: sectionsHoursEnd,
+        sectionsMinutesEnd: sectionsMinutesEnd,
       });
     } else if (value === "Holiday") {
       navigate("Holiday", {
-        value: value,
         text0: text0,
         text1: text1,
       });
     } else if (value === "Lesson") {
       navigate("Lesson", {
-        value: value,
         text0: text0,
         text1: text1,
       });
@@ -49,12 +50,11 @@ const Home = ({navigation: {navigate}}) => {
     }
   };
 
-
-  
   return (
     <View style={{ flex: 1, backgroundColor: "#3300FF" }}>
       <View>
-        {hoursPush()}{minutesPush()}
+        {hoursPush()}
+        {minutesPush()}
       </View>
       <Card>
         <Image
@@ -100,7 +100,7 @@ const Home = ({navigation: {navigate}}) => {
         <TextInput
           style={{ color: "#FF0000", margin: 3 }}
           label="Name of Designer"
-          value={text0}
+          //value={text0}
           onChangeText={(text0) => setText0(text0)}
           mode="outlined"
           theme={theme}
@@ -112,7 +112,7 @@ const Home = ({navigation: {navigate}}) => {
         <TextInput
           style={{ color: "#FF0000", margin: 3 }}
           label="Name of Plan"
-          value={text1}
+          //value={text1}
           onChangeText={(text1) => setText1(text1)}
           mode="outlined"
           theme={theme}
@@ -212,14 +212,20 @@ const theme = {
   },
 };
 const hoursPush = () => {
-  for (let i0 = 0; i0 < 24; i0++) {
-    hours.push(i0);
+  if (hours.length == 0) {
+    //Tekrar ekleme yapmasını engelleme amaçlı
+    for (let i0 = 0; i0 < 24; i0++) {
+      hours.push(i0);
+    }
   }
 };
 
 const minutesPush = () => {
-  for (let i1 = 0; i1 < 60; i1++) {
-    minutes.push(i1);
+  if (minutes.length == 0) {
+    //Tekrar ekleme yapmasını engelleme amaçlı
+    for (let i1 = 0; i1 < 60; i1++) {
+      minutes.push(i1);
+    }
   }
 };
 
