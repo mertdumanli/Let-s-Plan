@@ -6,7 +6,7 @@ const Holiday = (props) => {
   return (
     <View>
       <Text>{props.value}</Text>
-      <Button icon="label" mode="contained" onPress={() => Actions.Home()}>
+      <Button icon="label" mode="contained1" onPress={() => Actions.Home()}>
         Create
       </Button>
     </View>
