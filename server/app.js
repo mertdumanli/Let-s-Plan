@@ -8,8 +8,7 @@ app.use(bodyParser.json());
 
 const Model = mongoose.model("model");
 
-const mongoUri =
-  "mongodb+srv://cnq:NtmDW0Soc75DE5UF@cluster0.7vsjq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+const mongoUri = "URL"
 
 mongoose.connect(mongoUri, {
   useNewUrlParser: true,
