@@ -4,13 +4,12 @@ const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 require("./Model");
 
-
 app.use(bodyParser.json());
 
 const Model = mongoose.model("model");
 
 const mongoUri =
-  "put your url here"
+  "mongodb+srv://cnq:NtmDW0Soc75DE5UF@cluster0.7vsjq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 
 mongoose.connect(mongoUri, {
   useNewUrlParser: true,
@@ -21,11 +20,12 @@ mongoose.connection.on("connected", () => {
   console.log("connected to mongo yeahhh");
 });
 mongoose.connection.on("error", (err) => {
-  console.log("error", err);  
+  console.log("error", err);
 });
 
 app.get("/", (req, res) => {
-  Model.find({}).then((data) => {
+  Model.find({})
+    .then((data) => {
       res.send(data);
     })
     .catch((err) => {
@@ -35,21 +35,42 @@ app.get("/", (req, res) => {
 
 app.post("/send-data", (req, res) => {
   const model = new Model({
+    type: req.body.type,
     text0: req.body.text0,
     text1: req.body.text1,
     options: req.body.options,
     sectionsMinutesBegin: req.body.sectionsMinutesBegin,
     sectionsHoursBegin: req.body.sectionsHoursBegin,
     sectionsMinutesEnd: req.body.sectionsMinutesEnd,
-    sectionsHoursEnd: req.body.sectionsHoursEnd
+    sectionsHoursEnd: req.body.sectionsHoursEnd,
   });
-  model.save().then(data => {
+  model
+    .save()
+    .then((data) => {
       console.log(data);
     })
     .catch((err) => {
       console.log(err);
     });
 });
+
+app.post("/send-Lessons", (req, res) => {
+  const model = new Model({
+    type: req.body.type,
+    text0: req.body.text0,
+    text1: req.body.text1,
+    texts: req.body.texts,
+  });
+  model
+    .save()
+    .then((data) => {
+      console.log(data);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
 app.listen(3000, () => {
   console.log("server running");
 });

@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { FAB, IconButton, Colors, Button } from "react-native-paper";
 import { Actions } from "react-native-router-flux";
 import RNPickerSelect from "react-native-picker-select";
-import { Text, View, Image, Alert, StyleSheet, FlatList } from "react-native";
+import { Text, View, Image, StyleSheet, FlatList } from "react-native";
 
 var IndexOfItemsBegin = 0;
 var IndexOfItemsEnd = 0;
@@ -103,6 +103,7 @@ const Streaming = (props) => {
       body: JSON.stringify({
         text0: text0,
         text1: text1,
+        options: options,
         sectionsMinutesBegin: sectionsMinutesBegin,
         sectionsHoursBegin: sectionsHoursBegin,
         sectionsMinutesEnd: sectionsMinutesEnd,
@@ -136,7 +137,7 @@ const Streaming = (props) => {
         id: `${minutes[i]}`,
       });
     }
-  
+
     return liste;
   };
 
@@ -348,6 +349,7 @@ const Streaming = (props) => {
         <FlatList
           nestedScrollEnabled={true}
           data={options}
+          keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => {
             return renderList(props, item);
           }}

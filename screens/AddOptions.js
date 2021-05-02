@@ -91,6 +91,7 @@ const AddOptions = (props) => {
         <FlatList
           nestedScrollEnabled={true}
           data={options}
+          keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => {
             return renderList(item);
           }}
