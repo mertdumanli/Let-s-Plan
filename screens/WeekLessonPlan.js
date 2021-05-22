@@ -1,7 +1,7 @@
 import React, { Component } from "react";
-import * as Font from "expo-font";
-import { Ionicons } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 import { Actions } from "react-native-router-flux";
+import { connect } from "react-redux";
 import {
   Container,
   Header,
@@ -15,27 +15,26 @@ import {
   Input,
   CheckBox,
   Body,
+  FooterTab,
 } from "native-base";
 import { View, LogBox, Animated, Easing, StyleSheet } from "react-native";
+
 class WeekLessonPlan extends Component {
   state = {
-    size: this.props.size,
-    dayNumber: this.props.dayNumber,
+    navigate: this.props.navigation.navigate,
     options: [],
     loading: true,
     texts: [],
     valueOfAnimation: new Animated.Value(0),
-    text0: this.props.text0,
-    text1: this.props.text1,
   };
-  async componentDidMount() {
+  componentDidMount() {
     console.log("ÇALIŞTIRILDI");
     LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
     //LogBox.ignoreAllLogs();
     this.rotateAnimation();
     var K = 0;
-    for (var d = 1; d <= this.state.dayNumber; d++) {
-      for (var a = 1; a <= this.state.size; a++) {
+    for (var d = 1; d <= this.props.maxDay; d++) {
+      for (var a = 1; a <= this.props.maxLesson; a++) {
         this.state.texts.push(K.toString() + ")");
         this.state.options.push({
           lessons: a, //1-2-3-4-5-1-2-3-4-5
@@ -55,12 +54,6 @@ class WeekLessonPlan extends Component {
         K = K + 1;
       }
     }
-
-    await Font.loadAsync({
-      Roboto: require("native-base/Fonts/Roboto.ttf"),
-      Roboto_medium: require("native-base/Fonts/Roboto_medium.ttf"),
-      ...Ionicons.font,
-    });
     this.setState({ loading: false });
   }
 
@@ -98,7 +91,7 @@ class WeekLessonPlan extends Component {
   }
 
   componentDidUpdate() {
-    console.log("yenilendi.");
+    //  console.log("yenilendi.");
   }
   colorDay(item) {
     switch (item.days.toString()) {
@@ -168,6 +161,7 @@ class WeekLessonPlan extends Component {
     return (
       <List
         dataArray={this.state.options}
+        initialNumToRender={this.state.options.length}
         renderRow={(item) => (
           <ListItem>
             {this.colorDay(item)}
@@ -176,7 +170,6 @@ class WeekLessonPlan extends Component {
                 {item.lessons.toString()}
               </Text>
             </Button>
-
             <Item style={{ flex: 0.7 }}>
               {item.TextInputs}
               <CheckBox color="green" checked={item.check} />
@@ -215,34 +208,68 @@ class WeekLessonPlan extends Component {
   }
 
   control(state) {
-    fetch("http://8c1ec0daf45a.ngrok.io/send-Lessons", {
+    fetch(this.props.localhost + "/lesson-post", {
       method: "post",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        type: "1",
-        text0: state.text0,
-        text1: state.text1,
+        username: this.props.username,
+        password: this.props.password,
+        text0: this.props.text0,
+        text1: this.props.text1,
+        picture: this.props.picture,
+        pictureBoolean: this.props.pictureBoolean,
+        maxDay: this.props.maxDay,
+        maxLesson: this.props.maxLesson,
         texts: state.texts,
       }),
     })
       .then((res) => res.json())
-      .then((data) => console.log(data))
       .catch();
 
-    /* 
-    for (var q = 0; q < state.options.length; q++) {
-      console.log(state.texts[q]);
-    }
-    console.log(state.text0);
-    console.log(state.text1);
-  */
+    this.state.navigate("ShownLessonPlan", {
+      type: "2",
+      text0: this.props.text0,
+      text1: this.props.text1,
+      texts: state.texts,
+      picture: this.props.picture,
+      pictureBoolean: this.props.pictureBoolean,
+      maxDay: this.props.maxDay,
+      maxLesson: this.props.maxLesson,
+    });
   }
 
+  bottom(state) {
+    return (
+      <Footer>
+        <FooterTab>
+          <Button vertical onPress={() => Actions.Home()}>
+            <Entypo name="home" size={24} color="black" />
+            <Text>HOME</Text>
+          </Button>
+          <Button vertical onPress={() => this.control(state)}>
+            <Entypo name="upload" size={24} color="black" />
+            <Text>UPLOAD</Text>
+          </Button>
+          <Button vertical onPress={() => Actions.pop()}>
+            <Entypo name="back" size={24} color="black" />
+            <Text>BACK</Text>
+          </Button>
+        </FooterTab>
+      </Footer>
+    );
+  }
   render() {
     if (this.state.loading) {
       return <View></View>;
+    } else if (this.props.maxDay == 0 || this.props.maxLesson == 0) {
+      return (
+        alert(
+          "The number of days for the course schedule cannot be zero or the maximum number of courses per day cannot be zero."
+        ),
+        Actions.pop()
+      );
     }
     return (
       <Container>
@@ -267,17 +294,7 @@ class WeekLessonPlan extends Component {
 
         <Content>{this.list()}</Content>
 
-        <Footer>
-          <Button
-            full
-            success
-            large
-            style={{ flex: 1 }}
-            onPress={() => this.control(this.state)}
-          >
-            <Text>Click Me!</Text>
-          </Button>
-        </Footer>
+        {this.bottom(this.state)}
       </Container>
     );
   }
@@ -286,10 +303,23 @@ const styles = StyleSheet.create({
   TextAnimationColor: {
     color: "#f00",
     fontSize: 17,
-    //letterSpacing: 0, //harfler arası boşluk
     textDecorationLine: "underline",
     fontWeight: "bold",
     fontStyle: "italic",
   },
 });
-export default WeekLessonPlan;
+
+const mapStateToProps = (state) => ({
+  localhost: state.localhost,
+
+  username: state.username,
+  password: state.password,
+  text0: state.text0,
+  text1: state.text1,
+  picture: state.picture,
+  pictureBoolean: state.pictureBoolean,
+  maxDay: state.maxDay,
+  maxLesson: state.maxLesson,
+});
+
+export default connect(mapStateToProps)(WeekLessonPlan);

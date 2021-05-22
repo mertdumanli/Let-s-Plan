@@ -7,8 +7,11 @@ require("./Model");
 app.use(bodyParser.json());
 
 const Model = mongoose.model("model");
+const ModelRegister = mongoose.model("modelRegister");
+const ModelLesson = mongoose.model("modelLesson");
 
-const mongoUri = "URL"
+const mongoUri =
+  "mongodb+srv://cnq:NtmDW0Soc75DE5UF@cluster0.7vsjq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
 
 mongoose.connect(mongoUri, {
   useNewUrlParser: true,
@@ -16,7 +19,7 @@ mongoose.connect(mongoUri, {
 });
 
 mongoose.connection.on("connected", () => {
-  console.log("connected to mongo yeahhh");
+  console.log("connected to mongo");
 });
 mongoose.connection.on("error", (err) => {
   console.log("error", err);
@@ -42,6 +45,7 @@ app.post("/send-data", (req, res) => {
     sectionsHoursBegin: req.body.sectionsHoursBegin,
     sectionsMinutesEnd: req.body.sectionsMinutesEnd,
     sectionsHoursEnd: req.body.sectionsHoursEnd,
+    picture: req.body.picture,
   });
   model
     .save()
@@ -53,12 +57,58 @@ app.post("/send-data", (req, res) => {
     });
 });
 
-app.post("/send-Lessons", (req, res) => {
-  const model = new Model({
-    type: req.body.type,
+
+
+
+
+
+
+
+//Lesson
+
+app.get("/lesson-get", (req, res) => {
+  ModelLesson.find({})
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+app.post("/lesson-post", (req, res) => {
+  const model = new ModelLesson({
+    username: req.body.username,
+    password: req.body.password,
     text0: req.body.text0,
     text1: req.body.text1,
     texts: req.body.texts,
+    picture: req.body.picture,
+    pictureBoolean: req.body.pictureBoolean,
+    maxDay: req.body.maxDay,
+    maxLesson: req.body.maxLesson,
+  });
+  model.save().catch((err) => {
+    console.log(err);
+  });
+});
+
+
+//Login and Register Methods
+app.get("/register-get", (req, res) => {
+  ModelRegister.find({})
+    .then((data) => {
+      res.send(data);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
+
+app.post("/register-post", (req, res) => {
+  const model = new ModelRegister({
+    username: req.body.username,
+    password: req.body.password,
   });
   model
     .save()

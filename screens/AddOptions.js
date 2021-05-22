@@ -90,6 +90,7 @@ const AddOptions = (props) => {
       <View style={{ flex: 1, margin: 2 }}>
         <FlatList
           nestedScrollEnabled={true}
+          initialNumToRender={options.length}//değiştirdim
           data={options}
           keyExtractor={(item, index) => index.toString()}
           renderItem={({ item }) => {

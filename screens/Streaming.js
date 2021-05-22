@@ -5,6 +5,8 @@ import { Actions } from "react-native-router-flux";
 import RNPickerSelect from "react-native-picker-select";
 import { Text, View, Image, StyleSheet, FlatList } from "react-native";
 
+import { useSelector } from "react-redux";
+
 var IndexOfItemsBegin = 0;
 var IndexOfItemsEnd = 0;
 
@@ -17,17 +19,19 @@ const Streaming = (props) => {
 
   const options = props.options;
 
-  const hours = props.hours;
-  const minutes = props.minutes;
+  const hours = useSelector((state) => state.hours);
+  const minutes = useSelector((state) => state.minutes);
+  const localhost = useSelector((state) => state.localhost);
+
+  const text0 = useSelector((state) => state.text0);
+  const text1 = useSelector((state) => state.text1);
+  const picture = useSelector((state) => state.picture);
 
   const sectionsHoursBegin = props.sectionsHoursBegin;
   const sectionsMinutesBegin = props.sectionsMinutesBegin;
 
   const sectionsHoursEnd = props.sectionsHoursEnd;
   const sectionsMinutesEnd = props.sectionsMinutesEnd;
-
-  const text0 = props.text0;
-  const text1 = props.text1;
 
   const up = (K, Type) => {
     //Index numaralarında değişiklik
@@ -95,12 +99,13 @@ const Streaming = (props) => {
   }; //Sayfa açılınca ilk yapılan işlem olduğundan Actions.refresh() ekleme gereği görmedim -gereksiz-.
 
   const submitData = () => {
-    fetch("http://305f51e69f59.ngrok.io/send-data", {
+    fetch(localhost + "/send-data", {
       method: "post",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
+        type: 1,
         text0: text0,
         text1: text1,
         options: options,
@@ -108,6 +113,7 @@ const Streaming = (props) => {
         sectionsHoursBegin: sectionsHoursBegin,
         sectionsMinutesEnd: sectionsMinutesEnd,
         sectionsHoursEnd: sectionsHoursEnd,
+        picture: picture,
       }),
     })
       .then((res) => res.json())

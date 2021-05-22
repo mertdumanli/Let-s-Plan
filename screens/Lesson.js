@@ -1,29 +1,53 @@
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Image, Button, View, Text, Alert } from "react-native";
+import React, { useEffect } from "react";
+import { StyleSheet, Image, Button, View, Text } from "react-native";
 import { Actions } from "react-native-router-flux";
-import { Card, RadioButton, TextInput } from "react-native-paper";
-const Lesson = (props) => {
-  const text0 = props.text0;
-  const text1 = props.text1;
+import { TextInput, FAB } from "react-native-paper";
 
-  const [size, setSize] = useState(5);
-  const [dayNumber, setDayNumber] = useState(5);
-  useEffect(() => {
-    if (size.length == 0) {
-      setSize(5);
-    }
-  }, [size]);
-  useEffect(() => {
-    if (dayNumber.length == 0) {
-      setDayNumber(5);
-    }
-  }, [dayNumber]);
+import { useSelector, useDispatch } from "react-redux";
+import { setMaxDay, setMaxLesson } from "../redux/actions";
+const Lesson = () => {
+  const text0 = useSelector((state) => state.text0);
+  const text1 = useSelector((state) => state.text1);
+  const picture = useSelector((state) => state.picture);
+  const pictureBoolean = useSelector((state) => state.pictureBoolean);
+
+  const maxDay = useSelector((state) => state.maxDay);
+  const maxLesson = useSelector((state) => state.maxLesson);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-    if (dayNumber > 7) {
-      setDayNumber(7);
+    if (maxDay > 7) {
+      dispatch({ type: setMaxDay, payload: 7 });
     }
-  }, [dayNumber]);
+  }, [maxDay]);
+
+  const endEditing = (x) => {
+    let q = maxDay;
+    let p = maxLesson;
+    if (x == 0) {
+      //maxDay
+      if (q == 1 || q == 2 || q == 3 || q == 4 || q == 5 || q == 6 || q == 7) {
+      } else {
+        dispatch({ type: setMaxDay, payload: 5 });
+      }
+    } else if (x == 1) {
+      //maxLesson
+      if (p == 1 || p == 2 || p == 3 || p == 4 || p == 5 || p == 6 || p == 7) {
+      } else {
+        dispatch({ type: setMaxLesson, payload: 5 });
+      }
+    }
+  };
+
+  const pictureBottom = () => {
+    if (pictureBoolean == false) {
+      return require("./pictures/HomeBottom.jpg");
+    }
+    if (pictureBoolean == true) {
+      return { uri: picture };
+    }
+  };
+
   return (
     <View style={{ flex: 1, backgroundColor: "grey" }}>
       <View>
@@ -68,21 +92,6 @@ const Lesson = (props) => {
         </Text>
       </View>
       <View>
-        <Text>Aynı Gün İçindeki Maksimum Ders Sayınız? (default:5)</Text>
-      </View>
-      <View style={{ margin: 3, marginTop: 1 }}>
-        <TextInput
-          style={{ color: "#FF0000", margin: 3 }}
-          maxLength={1}
-          label="Max Number"
-          keyboardType="numeric"
-          onChangeText={(size) => setSize(size)}
-          mode="outlined"
-          theme={theme}
-          selectionColor="#fc8403"
-        />
-      </View>
-      <View>
         <Text>Haftada Kaç gün dersin var? (default:5)</Text>
       </View>
       <View style={{ margin: 3, marginTop: 1 }}>
@@ -91,26 +100,71 @@ const Lesson = (props) => {
           maxLength={1}
           label="Max Number"
           keyboardType="numeric"
-          onChangeText={(dayNumber) => setDayNumber(dayNumber)}
+          value={maxDay.toString()}
+          onChangeText={(dayNumber) =>
+            dispatch({ type: setMaxDay, payload: dayNumber })
+          }
+          onEndEditing={() => endEditing(0)}
           mode="outlined"
           theme={theme}
           selectionColor="#fc8403"
         />
       </View>
       <View>
+        <Text>Aynı Gün İçindeki Maksimum Ders Sayınız? (default:5)</Text>
+      </View>
+      <View style={{ margin: 3, marginTop: 1 }}>
+        <TextInput
+          style={{ color: "#FF0000", margin: 3 }}
+          maxLength={1}
+          label="Max Number"
+          keyboardType="numeric"
+          value={maxLesson.toString()}
+          onChangeText={(size) =>
+            dispatch({ type: setMaxLesson, payload: size })
+          }
+          onEndEditing={() => endEditing(1)}
+          mode="outlined"
+          theme={theme}
+          selectionColor="#fc8403"
+        />
+      </View>
+
+      <View>
         <Button
           title="Create Table"
-          onPress={() =>
-            props.navigation.navigate("WeekLessonPlan", {
-              size: size,
-              dayNumber: dayNumber,
-              text0: text0,
-              text1: text1
-            })
-          }
+          onPress={() => Actions.WeekLessonPlan()}
           color="#219600"
         />
       </View>
+
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          marginTop: 10,
+          paddingTop: 10,
+        }}
+      >
+        <Image
+          style={{ width: 350, height: 350, borderRadius: 80 }}
+          source={pictureBottom()}
+        />
+      </View>
+
+      <View style={{}}>
+        <Text
+          style={{ textAlign: "center", color: "red", fontStyle: "italic" }}
+        >
+          photo
+        </Text>
+      </View>
+      <FAB
+        style={{ position: "absolute", left: 0, bottom: 0 }}
+        icon="home"
+        color="yellow"
+        onPress={() => Actions.Home()}
+      />
     </View>
   );
 };
