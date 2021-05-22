@@ -11,7 +11,7 @@ const ModelRegister = mongoose.model("modelRegister");
 const ModelLesson = mongoose.model("modelLesson");
 
 const mongoUri =
-  "mongodb+srv://cnq:NtmDW0Soc75DE5UF@cluster0.7vsjq.mongodb.net/myFirstDatabase?retryWrites=true&w=majority";
+  "uri";
 
 mongoose.connect(mongoUri, {
   useNewUrlParser: true,
