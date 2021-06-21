@@ -1,8 +1,8 @@
 export const initialState = {
 
-  status: true,//Home ekranında önce veri çekimi için
-  login: true,//Giriş yapılmadan erişim engellemek için
-//login,status false olacak ayrıca Home.js de const [user, setUser] = useState(false); true yapılacak.
+  status: false,//Home ekranında önce veri çekimi için
+  login: false,//Giriş yapılmadan erişim engellemek için
+
 
   dataRegister: [],//kullanıcı bilgileri
   dataStreaming: [],//Streaming bilgileri

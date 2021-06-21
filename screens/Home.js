@@ -72,7 +72,7 @@ const Home = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
-  const [user, setUser] = useState(false); //login penceresi
+  const [user, setUser] = useState(true); //login penceresi
   const [register, setRegister] = useState(false); //register penceresi
 
   const [info, setInfo] = useState("");
