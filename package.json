@@ -8,21 +8,24 @@
     "eject": "expo eject"
   },
   "dependencies": {
-    "@react-native-community/datetimepicker": "3.2.0",
+    "@react-native-community/datetimepicker": "^3.4.6",
     "@react-native-community/masked-view": "0.1.10",
-    "@react-native-picker/picker": "1.9.11",
+    "@react-native-picker/picker": "^1.16.1",
     "@react-navigation/native": "^5.9.4",
     "@react-navigation/stack": "5.14.5",
     "expo": "~41.0.0",
     "expo-font": "~9.1.0",
     "expo-image-picker": "~10.1.4",
     "expo-status-bar": "~1.0.4",
+    "jspdf": "^2.3.1",
     "native-base": "^2.15.2",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "react-native": "https://github.com/expo/react-native/archive/sdk-41.0.0.tar.gz",
     "react-native-gesture-handler": "~1.10.2",
+    "react-native-html-to-pdf": "^0.9.1",
     "react-native-paper": "^4.7.2",
+    "react-native-pdf-lib": "^1.0.0",
     "react-native-picker-select": "^8.0.4",
     "react-native-reanimated": "~2.1.0",
     "react-native-router-flux": "^4.3.1",
@@ -33,7 +36,8 @@
     "redux": "^4.1.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.9.0"
+    "@babel/core": "^7.9.0",
+    "browserslist": "4.16.6"
   },
   "private": true
 }
