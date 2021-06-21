@@ -17,7 +17,14 @@ import {
   Body,
   FooterTab,
 } from "native-base";
-import { View, LogBox, Animated, Easing, StyleSheet } from "react-native";
+import {
+  View,
+  LogBox,
+  Animated,
+  Easing,
+  StyleSheet,
+  Alert,
+} from "react-native";
 
 class WeekLessonPlan extends Component {
   state = {
@@ -214,8 +221,8 @@ class WeekLessonPlan extends Component {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        username: this.props.username,
-        password: this.props.password,
+        uname: this.props.uname,
+        pass: this.props.pass,
         text0: this.props.text0,
         text1: this.props.text1,
         picture: this.props.picture,
@@ -229,14 +236,15 @@ class WeekLessonPlan extends Component {
       .catch();
 
     this.state.navigate("ShownLessonPlan", {
-      type: "2",
+      uname: this.props.uname,
+      pass: this.props.pass,
       text0: this.props.text0,
       text1: this.props.text1,
-      texts: state.texts,
       picture: this.props.picture,
       pictureBoolean: this.props.pictureBoolean,
       maxDay: this.props.maxDay,
       maxLesson: this.props.maxLesson,
+      texts: state.texts,
     });
   }
 
@@ -244,15 +252,69 @@ class WeekLessonPlan extends Component {
     return (
       <Footer>
         <FooterTab>
-          <Button vertical onPress={() => Actions.Home()}>
+          <Button
+            vertical
+            onPress={() =>
+              Alert.alert(
+                "Go Home",
+                "Are you sure? (Anything you add will be gone.)",
+                [
+                  {
+                    text: "NO",
+                    onPress: () => console.log("No Pressed"),
+                  },
+                  {
+                    text: "YES",
+                    onPress: () => Actions.Home(),
+                  },
+                ]
+              )
+            }
+          >
             <Entypo name="home" size={24} color="black" />
             <Text>HOME</Text>
           </Button>
-          <Button vertical onPress={() => this.control(state)}>
+          <Button
+            vertical
+            onPress={() =>
+              Alert.alert(
+                "Complete",
+                "Are you sure? (You will be able to see the information here again with the help of the back button in the new window; If you want, you can edit and send a new list.)",
+                [
+                  {
+                    text: "NO",
+                    onPress: () => console.log("No Pressed"),
+                  },
+                  {
+                    text: "YES",
+                    onPress: () => this.control(state),
+                  },
+                ]
+              )
+            }
+          >
             <Entypo name="upload" size={24} color="black" />
             <Text>UPLOAD</Text>
           </Button>
-          <Button vertical onPress={() => Actions.pop()}>
+          <Button
+            vertical
+            onPress={() =>
+              Alert.alert(
+                "Go Back",
+                "Are you sure? (Anything you add will be gone.)",
+                [
+                  {
+                    text: "NO",
+                    onPress: () => console.log("No Pressed"),
+                  },
+                  {
+                    text: "YES",
+                    onPress: () => Actions.pop(),
+                  },
+                ]
+              )
+            }
+          >
             <Entypo name="back" size={24} color="black" />
             <Text>BACK</Text>
           </Button>
@@ -311,9 +373,8 @@ const styles = StyleSheet.create({
 
 const mapStateToProps = (state) => ({
   localhost: state.localhost,
-
-  username: state.username,
-  password: state.password,
+  uname: state.uname,
+  pass: state.pass,
   text0: state.text0,
   text1: state.text1,
   picture: state.picture,

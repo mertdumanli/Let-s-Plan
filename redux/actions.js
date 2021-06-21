@@ -14,15 +14,29 @@ export const setShownBoolean = "SET_SHOWNBOOLEAN";
 
 export const setStatus = "SET_STATUS";
 
-export const setAllData = "SET_ALL_DATA";
-
 export const setLogin = "SET_LOGIN";
 
-export const setDataRegister =  "SET_DATA_REGISTER";
+export const setDataRegister = "SET_DATA_REGISTER";
+export const setDataRegisterLast = "SET_DATA_REGISTER_LAST";
+export const setDataStreaming = "SET_DATA_STREAMING";
+export const setDataStreamingLast = "SET_DATA_STREAMING_LAST";
+export const setDataLesson = "SET_DATA_LESSON";
+export const setDataLessonLast = "SET_DATA_LESSON_LAST";
 
 export const setUname = "SET_UNAME";
 
 export const setPass = "SET_PASS";
+
+export const setDate = "SET_DATE";
+
+export const set_Date = (date) => {
+  return {
+    type: setDate,
+    payload: { date },
+  };
+};
+
+
 
 export const set_Text0 = (text0) => {
   return {
@@ -52,17 +66,45 @@ export const set_DataRegister = (dataRegister) => {
   };
 };
 
+export const set_DataRegisterLast = (dataRegister) => {
+  return {
+    type: setDataRegisterLast,
+    payload: { dataRegister },
+  };
+};
+
+export const set_DataStreaming = (dataStreaming) => {
+  return {
+    type: setDataStreaming,
+    payload: { dataStreaming },
+  };
+};
+
+export const set_DataStreamingLast = (dataStreaming) => {
+  return {
+    type: setDataStreamingLast,
+    payload: { dataStreaming },
+  };
+};
+
+export const set_DataLesson = (dataLesson) => {
+  return {
+    type: setDataLesson,
+    payload: { dataLesson },
+  };
+};
+
+export const set_DataLessonLast = (dataLesson) => {
+  return {
+    type: setDataLessonLast,
+    payload: { dataLesson },
+  };
+};
+
 export const set_Login = (login) => {
   return {
     type: setLogin,
     payload: { login },
-  };
-};
-
-export const set_AllData = (allData) => {
-  return {
-    type: setAllData,
-    payload: { allData },
   };
 };
 

@@ -1,457 +1,676 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
-import { FAB, IconButton, Colors, Button } from "react-native-paper";
 import { Actions } from "react-native-router-flux";
-import RNPickerSelect from "react-native-picker-select";
-import { Text, View, Image, StyleSheet, FlatList } from "react-native";
+import { LogBox, StyleSheet, Modal, Image } from "react-native";
+import { useSelector, useDispatch } from "react-redux";
+import {
+  Container,
+  Header,
+  Content,
+  Left,
+  Right,
+  Body,
+  Button,
+  Footer,
+  List,
+  Text,
+  Card,
+  CardItem,
+  Input,
+  Icon,
+  Title,
+  Form,
+} from "native-base";
+import {
+  AntDesign,
+  MaterialIcons,
+  Feather,
+  FontAwesome5,
+  Ionicons,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 
-import { useSelector } from "react-redux";
+import { setDataStreamingLast, setDataStreaming } from "../redux/actions";
 
-var IndexOfItemsBegin = 0;
-var IndexOfItemsEnd = 0;
+let texts = [];
+
+let hoursBegin = [];
+
+let minutesBegin = [];
+
+let pieceTimes = [];
+
+let options = []; //yapılabilecek seçimler
 
 const Streaming = (props) => {
-  const [sectionhBegin, setSectionhBegin] = useState("null");
-  const [sectionmBegin, setSectionmBegin] = useState("null");
+  const dispatch = useDispatch();
+  const dataStreaming = useSelector((state) => state.dataStreaming);
 
-  const [sectionhEnd, setSectionhEnd] = useState("null");
-  const [sectionmEnd, setSectionmEnd] = useState("null");
-
-  const options = props.options;
-
-  const hours = useSelector((state) => state.hours);
-  const minutes = useSelector((state) => state.minutes);
+  //--------------------------------------------------------
+  //veri tabanına gönderilecek diğer bilgiler
   const localhost = useSelector((state) => state.localhost);
+  const uname = useSelector((state) => state.uname);
+  const pass = useSelector((state) => state.pass);
 
-  const text0 = useSelector((state) => state.text0);
-  const text1 = useSelector((state) => state.text1);
-  const picture = useSelector((state) => state.picture);
+  const [text0, setText0] = useState(useSelector((state) => state.text0));
+  const [text1, setText1] = useState(useSelector((state) => state.text1));
+  const [picture, setPicture] = useState(useSelector((state) => state.picture));
+  const [pictureBoolean, setPictureBoolean] = useState(
+    useSelector((state) => state.pictureBoolean)
+  );
 
-  const sectionsHoursBegin = props.sectionsHoursBegin;
-  const sectionsMinutesBegin = props.sectionsMinutesBegin;
+  const [index, setIndex] = useState(0); //options[index]
+  const [currentDate, setCurrentDate] = useState();
+  const [beginStreaming, setBeginStreaming] = useState(false); // sayfa açılışı
+  const [available, setAvailable] = useState(false); //var mı yok mu?
+  const [id, setId] = useState();
+  const [newOption, setNewOption] = useState("");
 
-  const sectionsHoursEnd = props.sectionsHoursEnd;
-  const sectionsMinutesEnd = props.sectionsMinutesEnd;
+  const [modal, setModal] = useState(false); //for info picture
 
-  const up = (K, Type) => {
-    //Index numaralarında değişiklik
-    //K: up/down up:1
-    //Type:0 Begin, Type:1 End
-    if (Type == 0) {
-      //IndexOfItemsBegin
-      if (K == 1) {
-        if (IndexOfItemsBegin != options.length - 1)
-          IndexOfItemsBegin = IndexOfItemsBegin + 1;
-      } else {
-        if (IndexOfItemsBegin != 0) IndexOfItemsBegin = IndexOfItemsBegin - 1;
+  useEffect(() => {
+    setCurrentDate(new Date().toString().substr(0, 15));
+  }, []);
+
+  useEffect(() => {
+    LogBox.ignoreLogs(["VirtualizedLists should never be nested"]);
+  }, []);
+
+  useEffect(() => {
+    (async () => getBegin())();
+  }, []);
+
+  const getBegin = async () => {
+    await dataStreaming.map((item) => {
+      if (item.uname == uname) {
+        options = item.options;
+        hoursBegin = item.hoursBegin;
+        minutesBegin = item.minutesBegin;
+        pieceTimes = item.pieceTimes;
+        texts = item.texts;
+        setId(item._id);
+        setAvailable(true);
+
+        if (pictureBoolean == false) {
+          //yeni resim eklenmediyse, daha önce sisteme kayıtlı resmi alıyorum.
+          setPicture(item.picture);
+          setPictureBoolean(item.pictureBoolean);
+        }
+        if (text0 == "") {
+          setText0(item.text0);
+        }
+        if (text1 == "") {
+          setText1(item.text1);
+        }
       }
-    } else if (Type == 1) {
-      //IndexOfItemsEnd
-      if (K == 1) {
-        if (IndexOfItemsEnd != options.length - 1)
-          IndexOfItemsEnd = IndexOfItemsEnd + 1;
+    });
+    await setBeginStreaming(true);
+  };
+
+  const decreaseIndex = () => {
+    if (index > 0) {
+      setIndex(index - 1);
+    } else {
+      setIndex(options.length - 1);
+    }
+  };
+
+  const increaseIndex = () => {
+    if (index < options.length - 1) {
+      setIndex(index + 1);
+    } else {
+      setIndex(0);
+    }
+  };
+
+  const addBeginValues = async () => {
+    if (options[index] == null || options[index] == "") {
+      alert("Options list is empty!");
+    } else {
+      let i = texts.length;
+      await texts.push(options[index]);
+      await pieceTimes.push(0);
+      if (i == 0) {
+        await hoursBegin.push(0);
+        await minutesBegin.push(0);
       } else {
-        if (IndexOfItemsEnd != 0) IndexOfItemsEnd = IndexOfItemsEnd - 1;
+        await hoursBegin.push(hoursBegin[i - 1]);
+
+        let m = minutesBegin[i - 1] + pieceTimes[i - 1];
+
+        if (m >= 60) {
+          //yeni eklenen zaman diliminde dakika kısmı 60 ve üstü olma durumunda yapılacaklar.
+          m = m % 60;
+          hoursBegin[i] += 1; //sadece 1 eklenmesinin sebebi: en fazla 45 dakika üstüne 60 eklenebilir.
+          //örneğin 00:45 iken [60 dk program süresi seçilmiş], yeni programın başlangıcı 01:45 olabilir.
+        }
+
+        await minutesBegin.push(m);
+      }
+      await Actions.refresh();
+    }
+  };
+
+  const minutesSettingsBegin = async () => {
+    await hoursBegin.map((item, index) => {
+      minutesBegin[index] = item * 60 + minutesBegin[index];
+    });
+    return minutesBegin;
+  };
+
+  const hoursSettingsEnd = async () => {
+    await minutesBegin.map((item, index) => {
+      hoursBegin[index] = Math.floor(item / 60);
+    });
+
+    return hoursBegin;
+  };
+
+  const minutesSettingsEnd = async () => {
+    await minutesBegin.map((item, index) => {
+      minutesBegin[index] = item % 60;
+    });
+
+    return minutesBegin;
+  };
+
+  const updateMinutes = async (i) => {
+    if (pieceTimes[i] != 0) {
+      for (let x = i; x < pieceTimes.length - 1; x++) {
+        minutesBegin[x + 1] = minutesBegin[x + 1] + 15;
+      }
+    } else {
+      for (let x = i; x < pieceTimes.length - 1; x++) {
+        minutesBegin[x + 1] = minutesBegin[x + 1] - 60;
       }
     }
+    return minutesBegin;
+  };
+
+  const pivotSection = (pivot) => {
+    switch (pivot) {
+      case 0:
+        return 15;
+      case 15:
+        return 30;
+      case 30:
+        return 45;
+      case 45:
+        return 60;
+      default:
+        return 0;
+    }
+  };
+
+  const updatePieceTimes = async (i) => {
+    let pivot = pieceTimes[i];
+    pieceTimes[i] = await pivotSection(pivot);
+
+    minutesBegin = await minutesSettingsBegin(); //Tüm saatleri dakikaya çevirme
+    minutesBegin = await updateMinutes(i); //İlgili indexleri değiştirme
+
+    hoursBegin = await hoursSettingsEnd(); //saatleri bulma
+    minutesBegin = await minutesSettingsEnd(); //dakikaları bulma
+
+    await Actions.refresh();
+  };
+
+  const updateAfterDeleteIndex = async (i, value) => {
+    await minutesBegin.slice(i).map((item, index) => {
+      minutesBegin[index + i] = item - value;
+    });
+
+    return await minutesBegin;
+  };
+
+  const deleteIndex = async (i) => {
+    let value = pieceTimes[i]; //silinen işin süresini ileriki işlerin başlangıçlarından çıkarma için
+
+    await texts.splice(i, 1);
+    await minutesBegin.splice(i, 1);
+    await hoursBegin.splice(i, 1);
+    await pieceTimes.splice(i, 1);
+
+    minutesBegin = await minutesSettingsBegin(); //Tüm saatleri dakikaya çevirme
+
+    minutesBegin = await updateAfterDeleteIndex(i, value); //Sonraki her index'ten silinen indexteki işlemin süresi çıkartılıyor.
+
+    hoursBegin = await hoursSettingsEnd(); //saatleri bulma
+    minutesBegin = await minutesSettingsEnd(); //dakikaları bulma
+
+    await Actions.refresh();
+  };
+
+  const clearAll = () => {
+    texts = [];
+    hoursBegin = [];
+    minutesBegin = [];
+    pieceTimes = [];
     Actions.refresh();
   };
 
-  const upgradeTime = (Type) => {
-    //Saatleri güncelleme
-    //Type:0 Begin, Type:1 End
-    if (Type == 0) {
-      if (sectionhBegin != "null") {
-        sectionsHoursBegin[IndexOfItemsBegin] = sectionhBegin;
-      } else {
-        sectionsHoursBegin[IndexOfItemsBegin] = "null";
+  const uploadAll = async () => {
+    //Eğerki eklenen işlerden biri options listesinde mevcut değilse ekleniyor.
+    await texts.map((item1) => {
+      let control = false;
+      options.map((item0) => {
+        if (item1 == item0) {
+          control = true;
+        }
+      });
+      if (control == false) {
+        options.push(item1);
       }
-      if (sectionmBegin != "null") {
-        sectionsMinutesBegin[IndexOfItemsBegin] = sectionmBegin;
-      } else {
-        sectionsMinutesBegin[IndexOfItemsBegin] = "null";
-      }
-    }
-    if (Type == 1) {
-      if (sectionhEnd != "null") {
-        sectionsHoursEnd[IndexOfItemsEnd] = sectionhEnd;
-      } else {
-        sectionsHoursEnd[IndexOfItemsEnd] = "null";
-      }
-      if (sectionmEnd != "null") {
-        sectionsMinutesEnd[IndexOfItemsEnd] = sectionmEnd;
-      } else {
-        sectionsMinutesEnd[IndexOfItemsEnd] = "null";
-      }
-    }
-    Actions.refresh();
-  };
+    });
+    console.log(available);
 
-  const maxControl = () => {
-    //Sayfa açılırken index numaralarının 0 ile size-1 ayarı.(index olarak)
-    if (IndexOfItemsBegin > options.length - 1 && options.length - 1 != -1) {
-      IndexOfItemsBegin = options.length - 1;
-    }
+    if (available == true) {
+      //güncelleme
+      await fetch(localhost + "/streaming-update", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: id,
+          uname: uname,
+          pass: pass,
+          text0: text0,
+          text1: text1,
+          texts: texts,
+          picture: picture,
+          pictureBoolean: pictureBoolean,
+          hoursBegin: hoursBegin,
+          minutesBegin: minutesBegin,
+          pieceTimes: pieceTimes,
+          currentDate: currentDate,
+          options: options,
+        }),
+      })
+        .then((res) => res.json())
+        .catch();
+    } else {
+      //yeni username için veriyi veritabanına gönderdim.
+      await fetch(localhost + "/streaming-post", {
+        method: "post",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          uname: uname,
+          pass: pass,
+          text0: text0,
+          text1: text1,
+          texts: texts,
+          picture: picture,
+          pictureBoolean: pictureBoolean,
+          hoursBegin: hoursBegin,
+          minutesBegin: minutesBegin,
+          pieceTimes: pieceTimes,
+          currentDate: currentDate,
+          options: options,
+        }),
+      })
+        .then((res) => res.json())
+        .catch();
 
-    if (IndexOfItemsEnd > options.length - 1 && options.length - 1 != -1) {
-      IndexOfItemsEnd = options.length - 1;
-    }
-  }; //Sayfa açılınca ilk yapılan işlem olduğundan Actions.refresh() ekleme gereği görmedim -gereksiz-.
+      //dataStreaming dizisine bu username için olan veriler yüklendi.
 
-  const submitData = () => {
-    fetch(localhost + "/send-data", {
-      method: "post",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        type: 1,
+      let combine = [];
+
+      await combine.push({
+        uname: uname,
+        pass: pass,
         text0: text0,
         text1: text1,
-        options: options,
-        sectionsMinutesBegin: sectionsMinutesBegin,
-        sectionsHoursBegin: sectionsHoursBegin,
-        sectionsMinutesEnd: sectionsMinutesEnd,
-        sectionsHoursEnd: sectionsHoursEnd,
+        texts: texts,
         picture: picture,
-      }),
-    })
-      .then((res) => res.json())
-      .then((data) => console.log(data))
-      .catch();
-  };
-
-  const hoursItems = (hours) => {
-    //RNPickerSelect item için gerekli dizi tanımlanması.(Saat kısmı)
-    let liste = [];
-    for (let i = 0; i < 24; i++) {
-      liste.push({
-        label: `${hours[i]}`,
-        value: `${hours[i]}`,
-        id: `${hours[i]}`,
+        pictureBoolean: pictureBoolean,
+        hoursBegin: hoursBegin,
+        minutesBegin: minutesBegin,
+        pieceTimes: pieceTimes,
+        currentDate: currentDate,
+        options: options,
       });
+
+      await dispatch({ type: setDataStreamingLast, payload: combine[0] });
+      await setAvailable(true);
+
+     await dataStreaming.map((item, index) => {
+       if(uname == item.uname){
+        dataStreaming.splice(index, 1);
+        dispatch({ type: setDataStreaming, payload: dataStreaming });
+        return;
+       }
+      })
+
+      await console.log(available);
     }
-    return liste;
   };
-  const minutesItems = (minutes) => {
-    //RNPickerSelect item için gerekli dizi tanımlanması.(Dakika kısmı)
-    let liste = [];
-    for (let i = 0; i < 60; i++) {
-      liste.push({
-        label: `${minutes[i]}`,
-        value: `${minutes[i]}`,
-        id: `${minutes[i]}`,
+
+  const pushOption = async () => {
+    if (newOption == "") {
+      await alert("Black cannot be entered!");
+    } else {
+      let control = false;
+      await options.map((item, index) => {
+        if (item == newOption) {
+          control = true;
+        }
       });
+      await pushOpt(control);
     }
-
-    return liste;
   };
 
-  return (
-    <View style={{ flex: 1, backgroundColor: "grey" }}>
-      <View>{maxControl()}</View>
-      <View>
-        <Image
-          style={{
-            width: 420,
-            height: 75,
-          }}
-          source={require("./pictures/HomeTop.jpg")}
-        />
+  const pushOpt = async (control) => {
+    if (control == true) {
+      alert("Already Available!");
+    } else {
+      await options.push(newOption);
+      await setIndex(options.length - 1);
+      await Actions.refresh();
+    }
+  };
 
-        <FAB
-          style={{
-            position: "absolute",
-            margin: 15,
-            right: 0,
-            bottom: -5,
-          }}
-          onPress={() =>
-            props.navigation.navigate("AddOptions", {
-              options: options,
-              sectionsMinutesBegin: sectionsMinutesBegin,
-              sectionsHoursBegin: sectionsHoursBegin,
-              sectionsMinutesEnd: sectionsMinutesEnd,
-              sectionsHoursEnd: sectionsHoursEnd,
-            })
-          }
-          small={true}
-          icon="plus"
-          theme={{ colors: { accent: "#006aff" } }}
-        />
-      </View>
-      <View style={styles.header}>
-        <Text
-          style={{
-            color: "blue",
-            fontStyle: "italic",
-            fontSize: 20,
-            fontWeight: "bold",
-          }}
+  const pictureBottom = () => {
+    if (pictureBoolean == false) {
+      return require("./pictures/HomeBottom.jpg");
+    }
+    if (pictureBoolean == true) {
+      return { uri: picture };
+    }
+  };
+
+  const deleteOption = async () => {
+    await options.splice(index, 1);
+    await Actions.refresh();
+  };
+
+  const content = (item, i) => {
+    return (
+      <Content>
+        <Card>
+          <CardItem>
+            <Left
+              style={{
+                flex: 0.7,
+                justifyContent: "space-around",
+                flexDirection: "row",
+              }}
+            >
+              <Button small transparent onPress={() => deleteIndex(i)}>
+                <AntDesign name="minuscircleo" size={14} color="blue" />
+              </Button>
+              <Text
+                style={{
+                  textAlign: "center",
+                  color: "black",
+                  fontSize: 24,
+                  fontWeight: "bold",
+                }}
+              >
+                {hoursBegin[i]}:{minutesBegin[i]}
+              </Text>
+            </Left>
+            <Body
+              style={{
+                flex: 1,
+                justifyContent: "space-around",
+                flexDirection: "row",
+              }}
+            >
+              <Text
+                style={{
+                  textAlign: "center",
+                  color: "black",
+                  fontSize: 20,
+                  fontWeight: "bold",
+                }}
+              >
+                {item}
+              </Text>
+            </Body>
+
+            <Right style={{ flex: 0.5 }}>
+              <Button full onPress={() => updatePieceTimes(i)}>
+                <Text
+                  style={{
+                    textAlign: "center",
+                    color: "orange",
+                    fontSize: 20,
+                    fontWeight: "bold",
+                  }}
+                >
+                  {pieceTimes[i]}
+                </Text>
+              </Button>
+            </Right>
+          </CardItem>
+        </Card>
+      </Content>
+    );
+  };
+
+  if (beginStreaming == false) {
+    return <Form />;
+  } else {
+    return (
+      <Container>
+        <Header>
+          <Left style={{ right: 0, flex: 0.4 }}>
+            <Button
+              large
+              success
+              rounded
+              block
+              transparent
+              onPress={() => decreaseIndex()}
+            >
+              <AntDesign name="downcircle" size={24} color="green" />
+            </Button>
+          </Left>
+          <Body style={{ flex: 2, alignItems: "center" }}>
+            <Button full onPress={() => addBeginValues()}>
+              <Text
+                style={{
+                  textAlign: "center",
+                  color: "orange",
+                  fontSize: 20,
+                  fontWeight: "bold",
+                }}
+              >
+                {options[index]}
+              </Text>
+            </Button>
+          </Body>
+          <Right style={{ left: 0, flex: 0.4 }}>
+            <Button
+              large
+              success
+              rounded
+              block
+              transparent
+              onPress={() => increaseIndex()}
+            >
+              <AntDesign name="upcircle" size={24} color="green" />
+            </Button>
+          </Right>
+        </Header>
+
+        <Content>
+          <Form style={{ flexDirection: "row", justifyContent: "center" }}>
+            <Button transparent onPress={() => setModal(true)}>
+              <Text
+                style={{
+                  borderWidth: 1,
+                  borderColor: "thistle", //devedikeni mor-pembe gibi
+                  borderRadius: 40,
+                  borderStyle: "dashed",
+                  textAlign: "center",
+                  fontWeight: "bold",
+                  color: "brown",
+                  marginTop: 10,
+                  marginLeft: 80,
+                  marginRight: 80,
+                  marginBottom: 10,
+                }}
+              >
+                {currentDate}
+              </Text>
+            </Button>
+          </Form>
+
+          <List
+            dataArray={texts}
+            initialNumToRender={texts.length}
+            keyExtractor={(item, index) => index.toString()}
+            renderRow={(item, x, i) => content(item, i)}
+          ></List>
+          <Modal
+            animationType="slide"
+            transparent={true}
+            visible={modal}
+            onRequestClose={() => {
+              setModal(false);
+            }}
+          >
+            <Container>
+              <Header>
+                <Left style={styles.header}>
+                  <Button transparent onPress={() => setModal(false)}>
+                    <Icon name="arrow-back" />
+                  </Button>
+                </Left>
+                <Body style={{ flex: 2, alignItems: "center" }}>
+                  <Title>INFORMATIONS</Title>
+                </Body>
+                <Right style={styles.header}>
+                  <Button transparent onPress={() => Actions.Home()}>
+                    <Icon name="home" />
+                  </Button>
+                </Right>
+              </Header>
+
+              <Content>
+                <Body style={{ margin: 20 }}>
+                  <Image
+                    style={{ width: 350, height: 350, borderRadius: 60 }}
+                    source={pictureBottom()}
+                  />
+                  <Text
+                    style={{ color: "red", fontSize: 18, fontWeight: "bold" }}
+                  >
+                    ~ Disagner Name ~
+                  </Text>
+                  <Text
+                    style={{ color: "blue", fontSize: 18, fontWeight: "bold" }}
+                  >
+                    ==\ {text0} /==
+                  </Text>
+                  <Text
+                    style={{ color: "red", fontSize: 18, fontWeight: "bold" }}
+                  >
+                    ~ Plan Name ~
+                  </Text>
+                  <Text
+                    style={{ color: "blue", fontSize: 18, fontWeight: "bold" }}
+                  >
+                    ==\ {text1} /==
+                  </Text>
+                </Body>
+              </Content>
+
+              <Footer style={{ backgroundColor: "black" }}>
+                <Body>
+                  <Text style={{ textAlign: "center", color: "brown" }}>
+                    This is just the information screen. It is designed with
+                    React-native-modal.
+                  </Text>
+                </Body>
+              </Footer>
+            </Container>
+          </Modal>
+        </Content>
+        <Footer
+          style={{ backgroundColor: "grey", borderBottomRightRadius: 70 }}
         >
-          {text0}
-        </Text>
-        <Text
-          style={{
-            color: "#1bde0d",
-            fontStyle: "italic",
-            fontSize: 20,
-            fontWeight: "bold",
-          }}
-        >
-          Let's Plan
-        </Text>
-        <Text
-          style={{
-            color: "blue",
-            fontStyle: "italic",
-            fontSize: 20,
-            fontWeight: "bold",
-          }}
-        >
-          {text1}
-        </Text>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-around",
-          height: 40,
-        }}
-      >
-        <View>
-          <IconButton
-            icon="arrow-up-box"
-            color={Colors.red800}
-            size={20}
-            onPress={() => {
-              up(1, 0);
+          <Left>
+            <Button transparent onPress={() => deleteOption()}>
+              <MaterialCommunityIcons
+                name="delete-empty"
+                size={40}
+                color="black"
+              />
+              <Text style={styles.DeleteOption}>{options[index]}</Text>
+            </Button>
+          </Left>
+          <Body
+            style={{
+              flex: 1,
+              justifyContent: "space-around",
+              flexDirection: "row",
             }}
-          />
-        </View>
-        <View style={{ marginTop: 10 }}>
-          <Text style={{ textAlign: "center", color: "#33ffff" }}>
-            Index {IndexOfItemsBegin}
-          </Text>
-        </View>
-        <View>
-          <IconButton
-            icon="arrow-down-box"
-            color={Colors.red800}
-            size={20}
-            onPress={() => {
-              up(-1, 0);
-            }}
-          />
-        </View>
-        <View style={{ width: 100, marginTop: 7 }}>
-          <RNPickerSelect
-            style={pickerStyle}
-            placeholder={{
-              label: "Hour",
-              value: "null",
-            }}
-            onValueChange={(value) => setSectionhBegin(value)}
-            useNativeAndroidPickerStyle={false}
-            items={hoursItems(hours)}
-          />
-        </View>
+          >
+            <Input
+              style={styles.AddOption}
+              placeholderTextColor="#bbf"
+              placeholder="New option"
+              value={newOption}
+              onChangeText={(text) => setNewOption(text)}
+            />
+          </Body>
+          <Right>
+            <Button transparent onPress={() => pushOption()}>
+              <Ionicons name="add-circle-sharp" size={40} color="black" />
+              <Text style={styles.Texts}>add</Text>
+            </Button>
+          </Right>
+        </Footer>
+        <Footer>
+          <Left style={{ margin: 5 }}>
+            <Button transparent onPress={() => clearAll()}>
+              <MaterialIcons name="clear-all" size={40} color="#0b0" />
+              <Text style={styles.Texts}>clear</Text>
+            </Button>
+          </Left>
+          <Body style={{ margin: 10 }}>
+            <Button transparent onPress={() => uploadAll()}>
+              <Feather name="upload-cloud" size={25} color="#0b0" />
+              <Text style={styles.Texts}>upload</Text>
+            </Button>
+          </Body>
 
-        <View style={{ width: 100, marginTop: 7 }}>
-          <RNPickerSelect
-            style={pickerStyle}
-            placeholder={{
-              label: "Minute",
-              value: "null",
-            }}
-            onValueChange={(value) => setSectionmBegin(value)}
-            useNativeAndroidPickerStyle={false}
-            items={minutesItems(minutes)}
-          />
-        </View>
-
-        <View style={{ marginTop: -3 }}>
-          <IconButton
-            icon="send-circle-outline"
-            color={Colors.orange900}
-            size={25}
-            onPress={() => {
-              upgradeTime(0);
-            }}
-          />
-        </View>
-      </View>
-      <View
-        style={{
-          flexDirection: "row",
-          justifyContent: "space-around",
-          height: 40,
-        }}
-      >
-        <View>
-          <IconButton
-            icon="arrow-up-box"
-            color={Colors.red800}
-            size={20}
-            onPress={() => {
-              up(1, 1);
-            }}
-          />
-        </View>
-        <View style={{ marginTop: 10 }}>
-          <Text style={{ textAlign: "center", color: "#33ffff" }}>
-            Index {IndexOfItemsEnd}
-          </Text>
-        </View>
-        <View>
-          <IconButton
-            icon="arrow-down-box"
-            color={Colors.red800}
-            size={20}
-            onPress={() => {
-              up(-1, 1);
-            }}
-          />
-        </View>
-        <View style={{ width: 100, marginTop: 7 }}>
-          <RNPickerSelect
-            style={pickerStyle}
-            placeholder={{
-              label: "Hour",
-              value: "null",
-            }}
-            onValueChange={(value) => setSectionhEnd(value)}
-            useNativeAndroidPickerStyle={false}
-            items={hoursItems(hours)}
-          />
-        </View>
-
-        <View style={{ width: 100, marginTop: 7 }}>
-          <RNPickerSelect
-            style={pickerStyle}
-            placeholder={{
-              label: "Minute",
-              value: "null",
-            }}
-            onValueChange={(value) => setSectionmEnd(value)}
-            useNativeAndroidPickerStyle={false}
-            items={minutesItems(minutes)}
-          />
-        </View>
-
-        <View style={{ marginTop: -3 }}>
-          <IconButton
-            icon="send-circle-outline"
-            color={Colors.orange900}
-            size={25}
-            onPress={() => {
-              upgradeTime(1);
-            }}
-          />
-        </View>
-      </View>
-
-      <View style={{ flex: 1, margin: 2 }}>
-        <FlatList
-          nestedScrollEnabled={true}
-          data={options}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => {
-            return renderList(props, item);
-          }}
-        />
-      </View>
-      <View>
-        <Button
-          color="black"
-          style={{ margin: 1, borderRadius: 10 }}
-          icon="check-all"
-          mode="contained"
-          onPress={() => submitData()}
-        >
-          Complete
-        </Button>
-      </View>
-    </View>
-  );
+          <Right style={{ margin: 5 }}>
+            <Button transparent onPress={() => Actions.Home()}>
+              <FontAwesome5 name="home" size={25} color="#0b0" />
+              <Text style={styles.Texts}>Home</Text>
+            </Button>
+          </Right>
+        </Footer>
+      </Container>
+    );
+  }
 };
 
-const renderList = (props, item) => {
-  const sectionsHoursBegin = props.sectionsHoursBegin;
-  const sectionsMinutesBegin = props.sectionsMinutesBegin;
-
-  const sectionsHoursEnd = props.sectionsHoursEnd;
-  const sectionsMinutesEnd = props.sectionsMinutesEnd;
-  return (
-    <View
-      style={{
-        borderWidth: 5,
-        height: 50,
-        flex: 1,
-        backgroundColor: "white",
-        margin: 5,
-        alignItems: "center",
-        flexDirection: "row",
-      }}
-    >
-      <View>
-        <IconButton icon="ticket" color={Colors.blue500} size={10} />
-      </View>
-      <View>
-        <Text
-          style={{
-            textAlign: "left",
-            fontSize: 16,
-            fontStyle: "italic",
-            fontWeight: "bold",
-            color: "black",
-            width: 220,
-          }}
-        >
-          {item}
-        </Text>
-      </View>
-      <View style={{ width: 50, alignItems: "center" }}>
-        <Text style={{ color: "purple", backgroundColor: "black" }}>
-          |Begin|
-        </Text>
-        <Text style={{ color: "purple", backgroundColor: "black" }}>|End|</Text>
-      </View>
-      <View style={{ width: 100, alignItems: "center" }}>
-        <Text style={styles.clock}>
-          {sectionsHoursBegin[item.slice(0, 1)]} :{" "}
-          {sectionsMinutesBegin[item.slice(0, 1)]}
-        </Text>
-        <Text style={styles.clock}>
-          {sectionsHoursEnd[item.slice(0, 1)]} :{" "}
-          {sectionsMinutesEnd[item.slice(0, 1)]}
-        </Text>
-      </View>
-    </View>
-  );
-};
 const styles = StyleSheet.create({
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-around",
-    backgroundColor: "#fc0352",
+  Texts: {
+    textAlign: "center",
+    color: "orange",
+    fontSize: 17,
+    fontWeight: "bold",
   },
-  clock: {
-    color: "green",
-    paddingHorizontal: 10,
-    backgroundColor: "black",
+  DeleteOption: {
+    textAlign: "center",
+    color: "black",
+    fontSize: 10,
+    fontWeight: "bold",
+  },
+  AddOption: {
+    textAlign: "center",
+    color: "black",
+    fontSize: 11,
+    fontWeight: "bold",
   },
 });
-const pickerStyle = {
-  placeholder: {
-    color: "blue",
-  },
-  inputAndroid: {
-    color: "green",
-    paddingHorizontal: 10,
-    backgroundColor: "black",
-    borderRadius: 15,
-  },
-};
 
 export default Streaming;

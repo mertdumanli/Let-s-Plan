@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Text,
   View,
@@ -7,6 +7,7 @@ import {
   StyleSheet,
   LogBox,
   Modal,
+  Alert,
 } from "react-native";
 import { Actions } from "react-native-router-flux";
 import {
@@ -40,11 +41,14 @@ import {
   setPictureBoolean,
   setShownBoolean,
   setStatus,
-  setAllData,
   setLogin,
   setDataRegister,
+  setDataRegisterLast,
+  setDataLesson,
+  setDataStreaming,
   setUname,
   setPass,
+  set_Picture,
 } from "../redux/actions";
 
 const Home = () => {
@@ -52,7 +56,7 @@ const Home = () => {
   const [selectedValue, setSelectedValue] = useState("Streaming"); //Varolan planlardan gösterim için seçim
 
   const dispatch = useDispatch();
-
+  
   const [t0, setT0] = useState(useSelector((state) => state.text0));
   const [t1, setT1] = useState(useSelector((state) => state.text1));
 
@@ -104,8 +108,7 @@ const Home = () => {
         quality: 0.5,
       });
       console.log(data);
-      /*
-      
+
       if (!data.cancelled) {
         let newfile = {
           uri: data.uri,
@@ -113,13 +116,12 @@ const Home = () => {
           name: `test.${data.uri.split(".")[1]}`,
         };
         handleUpload(newfile);
-      }*/
-    }/* else {
+      }
+    } else {
       Alert.alert("you need to give up permission to work");
-    }*/
+    }
   };
 
-  
   const pickFromCamera = async () => {
     //Fotoğraf çekme
     const { granted } = await Permissions.askAsync(Permissions.CAMERA);
@@ -196,9 +198,9 @@ const Home = () => {
   const checkLogin = () => {
     let control = false;
     dataRegister.map(async (item, index) => {
-      if (item.username == username) {
+      if (item.uname == username) {
         control = true;
-        if (item.password == password) {
+        if (item.pass == password) {
           await dispatch({ type: setUname, payload: username });
           await dispatch({ type: setPass, payload: password });
           await dispatch({ type: setText0, payload: username });
@@ -221,27 +223,24 @@ const Home = () => {
     if (username.length >= 4) {
       if (password.length >= 4) {
         await dataRegister.map((item, index) => {
-          if (item.username == username) {
+          if (item.uname == username) {
             control = false;
           }
         });
 
         if (control == true) {
+          let combine = [];
           await setInfo("Successfully Registered!");
-          await dispatch({ type: setUname, payload: username });
-          await dispatch({ type: setPass, payload: password });
-          await dispatch({ type: setText0, payload: username });
-          await setT0(username);
-          await dispatch({ type: setLogin, payload: true });
-          await setRegister(false);
+          await combine.push({ uname: username, pass: password });
+          await dispatch({ type: setDataRegisterLast, payload: combine[0] });
           await fetch(localhost + "/register-post", {
             method: "post",
             headers: {
               "Content-Type": "application/json",
             },
             body: JSON.stringify({
-              username: username,
-              password: password,
+              uname: username,
+              pass: password,
             }),
           })
             .then((res) => res.json())
@@ -258,16 +257,7 @@ const Home = () => {
   };
 
   const login_ = async () => {
-    await fetch(localhost + "/register-get", {
-      method: "get",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => res.json())
-      .then((data) => dispatch({ type: setDataRegister, payload: data }))
-      .catch();
-
+    await deletePicture();
     await dispatch({ type: setLogin, payload: false });
     await setUser(true);
   };
@@ -284,16 +274,6 @@ const Home = () => {
 
       //veritabanından tüm verileri çektim.
 
-      fetch(localhost + "/", {
-        method: "get",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      })
-        .then((res) => res.json())
-        .then((data) => dispatch({ type: setAllData, payload: data }))
-        .catch();
-
       fetch(localhost + "/register-get", {
         method: "get",
         headers: {
@@ -302,6 +282,26 @@ const Home = () => {
       })
         .then((res) => res.json())
         .then((data) => dispatch({ type: setDataRegister, payload: data }))
+        .catch();
+
+      fetch(localhost + "/streaming-get", {
+        method: "get",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => dispatch({ type: setDataStreaming, payload: data }))
+        .catch();
+
+      fetch(localhost + "/lesson-get", {
+        method: "get",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((res) => res.json())
+        .then((data) => dispatch({ type: setDataLesson, payload: data }))
         .catch();
 
       // programın başlatılması için
@@ -682,7 +682,18 @@ const Home = () => {
                 small
                 icon="exit-run"
                 color="black"
-                onPress={() => login_()}
+                onPress={() =>
+                  Alert.alert("Sign Out", "Are you sure?", [
+                    {
+                      text: "NO",
+                      onPress: () => console.log("No Pressed"),
+                    },
+                    {
+                      text: "YES",
+                      onPress: () => login_(),
+                    },
+                  ])
+                }
               />
             </View>
           </View>

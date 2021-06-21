@@ -17,15 +17,15 @@ import {
   List,
   ListItem,
 } from "native-base";
-import { setStatus } from "../redux/actions";
+import { setDataLessonLast } from "../redux/actions";
 const ShownLessonPlan = (props) => {
   const [datas, setDatas] = useState([]); //props
   const shownBoolean = useSelector((state) => state.shownBoolean);
   const [modal, setModal] = useState(false); //for info picture
-  const allData = useSelector((state) => state.allData);
+  const dataLesson = useSelector((state) => state.dataLesson);
   const dispatch = useDispatch();
 
-  const [days, setDays] = useState([
+  const days = [
     "Monday",
     "Tuesday",
     "Wednesday",
@@ -33,7 +33,7 @@ const ShownLessonPlan = (props) => {
     "Friday",
     "Saturday",
     "Sunday",
-  ]);
+  ];
 
   let key = -1;
   useEffect(() => {
@@ -41,11 +41,10 @@ const ShownLessonPlan = (props) => {
       LogBox.ignoreAllLogs();
     }
     if (shownBoolean == true) {
-      setDatas(allData[rand(allData.length)]);
+      setDatas(dataLesson[rand(dataLesson.length)]);
     } else if (shownBoolean == false) {
       setDatas(props);
-      dispatch({ type: setStatus, payload: false }); //ana sayfadaki veri çekimi yenilensin yeni eklenen data da içine alınsın.
-      //Ana menüden örnek görmek istenirse burası da eklenmiş olması için.
+      dispatch({ type: setDataLessonLast, payload: props });
     }
   }, []);
 
