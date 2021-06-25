@@ -1,23 +1,6 @@
-import {
-  setText0,
-  setText1,
-  setPicture,
-  setPictureBoolean,
-  setMaxDay,
-  setMaxLesson,
-  setShownBoolean,
-  setStatus,
-  setLogin,
-  setUname,
-  setPass,
-  setDataRegister,
-  setDataRegisterLast,
-  setDataStreaming,
-  setDataStreamingLast,
-  setDataLesson,
-  setDataLessonLast,
-  setDate,
-} from "../actions";
+import { setText0, setText1, setPicture, setPictureBoolean, setMaxDay, setMaxLesson, setShownBoolean, setStatus,
+  setLogin, setUname, setPass, setDataRegister, setDataRegisterLast, setDataStreaming, setDataStreamingLast,
+  setDataLesson, setDataLessonLast } from "../actions";
 
 import { initialState } from "../initialStates";
 
@@ -66,11 +49,7 @@ export default function reducer(state = initialState, action) {
       return { ...state, uname: action.payload };
     case setPass:
       return { ...state, pass: action.payload };
-    case setDate:
-      return { ...state, date: action.payload };
-
     default:
       return state;
   }
 }
-//allData: state.allData.concat(action.payload),// sonuna ekleme yapmaya çevirmek istersem

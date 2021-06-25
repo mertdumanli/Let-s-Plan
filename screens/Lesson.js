@@ -2,7 +2,6 @@ import React, { useEffect } from "react";
 import { StyleSheet, Image, Button, View, Text } from "react-native";
 import { Actions } from "react-native-router-flux";
 import { TextInput, FAB } from "react-native-paper";
-
 import { useSelector, useDispatch } from "react-redux";
 import { setMaxDay, setMaxLesson } from "../redux/actions";
 const Lesson = () => {

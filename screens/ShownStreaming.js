@@ -2,28 +2,9 @@ import React, { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { Actions } from "react-native-router-flux";
 import { LogBox, StyleSheet, Modal, Image } from "react-native";
-import {
-  Container,
-  Header,
-  Content,
-  Left,
-  Right,
-  Body,
-  Button,
-  Footer,
-  List,
-  Text,
-  Card,
-  CardItem,
-  Icon,
-  Title,
-  Form,
-} from "native-base";
-import {
-  MaterialIcons,
-  FontAwesome5,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
+import { Container, Header, Content, Left, Right, Body, Button, Footer, List,  Text, Card, CardItem,
+  Icon, Title, Form } from "native-base";
+import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
 
 let texts = [];
 let hoursBegin = [];
@@ -147,10 +128,8 @@ const ShownStreaming = () => {
   };
 
   if (beginStreaming == false) {
-    console.log("1");
     return <Form />;
   } else {
-    console.log("2");
     return (
       <Container>
         <Header>

@@ -1,47 +1,32 @@
 export const setText0 = "SET_TEXT0";
-
 export const setText1 = "SET_TEXT1";
-
 export const setPicture = "SET_PICTURE";
-
 export const setPictureBoolean = "SET_PICTUREBOOLEAN";
-
 export const setMaxDay = "SET_MAXDAY";
-
 export const setMaxLesson = "SET_MAXLESSON";
-
 export const setShownBoolean = "SET_SHOWNBOOLEAN";
-
 export const setStatus = "SET_STATUS";
-
 export const setLogin = "SET_LOGIN";
-
 export const setDataRegister = "SET_DATA_REGISTER";
 export const setDataRegisterLast = "SET_DATA_REGISTER_LAST";
 export const setDataStreaming = "SET_DATA_STREAMING";
 export const setDataStreamingLast = "SET_DATA_STREAMING_LAST";
 export const setDataLesson = "SET_DATA_LESSON";
 export const setDataLessonLast = "SET_DATA_LESSON_LAST";
-
 export const setUname = "SET_UNAME";
-
 export const setPass = "SET_PASS";
-
-export const setDate = "SET_DATE";
-
-export const set_Date = (date) => {
-  return {
-    type: setDate,
-    payload: { date },
-  };
-};
-
-
 
 export const set_Text0 = (text0) => {
   return {
     type: setText0,
     payload: { text0 },
+  };
+};
+
+export const set_Text1 = (text1) => {
+  return {
+    type: setText1,
+    payload: { text1 },
   };
 };
 
@@ -115,12 +100,6 @@ export const set_Status = (status) => {
   };
 };
 
-export const set_Text1 = (text1) => {
-  return {
-    type: setText1,
-    payload: { text1 },
-  };
-};
 
 export const set_Picture = (picture) => {
   return {

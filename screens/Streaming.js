@@ -1,45 +1,18 @@
 import React, { useState, useEffect } from "react";
-
 import { Actions } from "react-native-router-flux";
 import { LogBox, StyleSheet, Modal, Image } from "react-native";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  Container,
-  Header,
-  Content,
-  Left,
-  Right,
-  Body,
-  Button,
-  Footer,
-  List,
-  Text,
-  Card,
-  CardItem,
-  Input,
-  Icon,
-  Title,
-  Form,
-} from "native-base";
-import {
-  AntDesign,
-  MaterialIcons,
-  Feather,
-  FontAwesome5,
-  Ionicons,
-  MaterialCommunityIcons,
-} from "@expo/vector-icons";
+import * as Print from "expo-print";
+import { Container, Header, Content, Left, Right, Body, Button, Footer, List, Text, Card, CardItem, Input,
+  Icon, Title, Form } from "native-base";
+import { AntDesign, MaterialIcons, Feather, FontAwesome5, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 
 import { setDataStreamingLast, setDataStreaming } from "../redux/actions";
 
 let texts = [];
-
 let hoursBegin = [];
-
 let minutesBegin = [];
-
 let pieceTimes = [];
-
 let options = []; //yapılabilecek seçimler
 
 const Streaming = (props) => {
@@ -63,7 +36,7 @@ const Streaming = (props) => {
   const [currentDate, setCurrentDate] = useState();
   const [beginStreaming, setBeginStreaming] = useState(false); // sayfa açılışı
   const [available, setAvailable] = useState(false); //var mı yok mu?
-  const [id, setId] = useState();
+  const [id, setId] = useState(""); //burada oynama yaptım.
   const [newOption, setNewOption] = useState("");
 
   const [modal, setModal] = useState(false); //for info picture
@@ -237,7 +210,6 @@ const Streaming = (props) => {
 
     hoursBegin = await hoursSettingsEnd(); //saatleri bulma
     minutesBegin = await minutesSettingsEnd(); //dakikaları bulma
-
     await Actions.refresh();
   };
 
@@ -262,7 +234,6 @@ const Streaming = (props) => {
         options.push(item1);
       }
     });
-    console.log(available);
 
     if (available == true) {
       //güncelleme
@@ -336,15 +307,14 @@ const Streaming = (props) => {
       await dispatch({ type: setDataStreamingLast, payload: combine[0] });
       await setAvailable(true);
 
-     await dataStreaming.map((item, index) => {
-       if(uname == item.uname){
-        dataStreaming.splice(index, 1);
-        dispatch({ type: setDataStreaming, payload: dataStreaming });
-        return;
-       }
-      })
+      await dataStreaming.map((item, index) => {
+        if (uname == item.uname) {
+          dataStreaming.splice(index, 1);
+          dispatch({ type: setDataStreaming, payload: dataStreaming });
+          return;
+        }
+      });
 
-      await console.log(available);
     }
   };
 
@@ -381,9 +351,87 @@ const Streaming = (props) => {
     }
   };
 
+  const picturePDF = () => {
+    if (pictureBoolean == false) {
+      return "https://images.unsplash.com/photo-1565099903912-62dabca6e670?ixid=MXwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHw%3D&ixlib=rb-1.2.1&auto=format&fit=crop&w=1351&q=80";
+    }
+    if (pictureBoolean == true) {
+      return picture;
+    }
+  };
+
   const deleteOption = async () => {
     await options.splice(index, 1);
     await Actions.refresh();
+  };
+
+  const textsPDFs = () => {
+    let i = 0;
+    let array = [];
+    texts.map((item, index) => {
+      array.push(
+        "<table><tr bgcolor=#eeeeee><td width=500 height=50px align=center><font color=black>" +
+          item +
+          "</font></td><td width=100 align=center>" +
+          hoursBegin[index] +
+          ":" +
+          minutesBegin[index] +
+          "</td><td width=100 align=center>" +
+          pieceTimes[index] +
+          "</td></tr></table>"
+      );
+    });
+    array = array.join(" ");
+
+    return array;
+  };
+
+  const html = () => {
+    let keyPicture = picturePDF();
+    let textsPDF = textsPDFs();
+    return (
+      "<body>" +
+      "<h1><b><font color=red>STREAMING</font><b></h1>" +
+      "<hr noshade size=10>" +
+      "User name:" +
+      uname +
+      "<br>" +
+      "Password:" +
+      pass +
+      "<hr noshade size=5>" +
+      "Id:" +
+      id +
+      "<br>" +
+      "Last Modified Date:" +
+      currentDate +
+      "<br>" +
+      "<hr noshade size=5>" +
+      "Name of Designer:" +
+      text0 +
+      "<br>" +
+      "Name of Plan:" +
+      text1 +
+      "<hr noshade size=5>" +
+      "<img src=" +
+      keyPicture +
+      " style=width:250px></img>" +
+      "<hr noshade size=5>" +
+      textsPDF +
+      "<hr noshade size=5></body>"
+    );
+  };
+
+  const printPdf = async () => {
+    let filePath = await Print.printToFileAsync({
+      html: html(),
+      width: 600,
+      height: 800,
+      base64: true,
+    });
+
+    await Print.printAsync({ uri: filePath.uri }).catch((error) =>
+      Alert.alert("error.message")
+    );
   };
 
   const content = (item, i) => {
@@ -498,26 +546,35 @@ const Streaming = (props) => {
         </Header>
 
         <Content>
-          <Form style={{ flexDirection: "row", justifyContent: "center" }}>
-            <Button transparent onPress={() => setModal(true)}>
-              <Text
-                style={{
-                  borderWidth: 1,
-                  borderColor: "thistle", //devedikeni mor-pembe gibi
-                  borderRadius: 40,
-                  borderStyle: "dashed",
-                  textAlign: "center",
-                  fontWeight: "bold",
-                  color: "brown",
-                  marginTop: 10,
-                  marginLeft: 80,
-                  marginRight: 80,
-                  marginBottom: 10,
-                }}
-              >
-                {currentDate}
-              </Text>
-            </Button>
+          <Form style={{ flexDirection: "column", justifyContent: "center" }}>
+            <Body>
+              <Button transparent onPress={() => setModal(true)}>
+                <Text
+                  style={{
+                    borderWidth: 1,
+                    borderColor: "thistle", //devedikeni mor-pembe gibi
+                    borderRadius: 40,
+                    borderStyle: "dashed",
+                    textAlign: "center",
+                    fontWeight: "bold",
+                    color: "brown",
+                    marginTop: 10,
+                    marginLeft: 80,
+                    marginRight: 80,
+                    marginBottom: 10,
+                  }}
+                >
+                  {currentDate}
+                </Text>
+              </Button>
+            </Body>
+
+            <Body>
+              <Button transparent onPress={() => printPdf()}>
+                <Feather name="upload-cloud" size={10} color="#0b0" />
+                <Text>Print PDF</Text>
+              </Button>
+            </Body>
           </Form>
 
           <List

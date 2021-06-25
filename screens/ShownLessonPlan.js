@@ -2,21 +2,8 @@ import React, { useState, useEffect } from "react";
 import { View, Modal, StyleSheet, Image, LogBox } from "react-native";
 import { Actions } from "react-native-router-flux";
 import { useSelector, useDispatch } from "react-redux";
-import {
-  Container,
-  Header,
-  Title,
-  Content,
-  Footer,
-  Button,
-  Left,
-  Right,
-  Body,
-  Icon,
-  Text,
-  List,
-  ListItem,
-} from "native-base";
+import { Container, Header, Title, Content, Footer, Button, Left,
+  Right, Body, Icon, Text, List, ListItem } from "native-base";
 import { setDataLessonLast } from "../redux/actions";
 const ShownLessonPlan = (props) => {
   const [datas, setDatas] = useState([]); //props

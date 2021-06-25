@@ -1,55 +1,15 @@
 import React, { useEffect, useState } from "react";
-import {
-  Text,
-  View,
-  Picker,
-  Image,
-  StyleSheet,
-  LogBox,
-  Modal,
-  Alert,
-} from "react-native";
+import { Text, View, Picker, Image, StyleSheet, LogBox, Modal, Alert } from "react-native";
 import { Actions } from "react-native-router-flux";
-import {
-  RadioButton,
-  Button,
-  TextInput,
-  Checkbox,
-  FAB,
-} from "react-native-paper";
-import {
-  Container,
-  Header,
-  Title,
-  Content,
-  Footer,
-  Left,
-  Right,
-  Body,
-} from "native-base";
+import { RadioButton, Button, TextInput, Checkbox, FAB } from "react-native-paper";
+import { Container, Header, Title, Content, Footer, Left, Right, Body } from "native-base";
 import * as ImagePicker from "expo-image-picker";
 import * as Permissions from "expo-permissions";
-
 import * as Font from "expo-font";
 import { Ionicons } from "@expo/vector-icons";
-
 import { useSelector, useDispatch } from "react-redux";
-import {
-  setText0,
-  setText1,
-  setPicture,
-  setPictureBoolean,
-  setShownBoolean,
-  setStatus,
-  setLogin,
-  setDataRegister,
-  setDataRegisterLast,
-  setDataLesson,
-  setDataStreaming,
-  setUname,
-  setPass,
-  set_Picture,
-} from "../redux/actions";
+import { setText0, setText1, setPicture, setPictureBoolean, setShownBoolean, setStatus, setLogin,
+  setDataRegister, setDataRegisterLast, setDataLesson, setDataStreaming, setUname, setPass } from "../redux/actions";
 
 const Home = () => {
   const [value, setValue] = useState("Streaming"); //Yeni Plan oluştururken seçim

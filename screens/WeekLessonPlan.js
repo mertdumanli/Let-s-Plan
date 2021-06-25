@@ -2,29 +2,9 @@ import React, { Component } from "react";
 import { Entypo } from "@expo/vector-icons";
 import { Actions } from "react-native-router-flux";
 import { connect } from "react-redux";
-import {
-  Container,
-  Header,
-  Content,
-  Button,
-  Text,
-  Footer,
-  List,
-  ListItem,
-  Item,
-  Input,
-  CheckBox,
-  Body,
-  FooterTab,
-} from "native-base";
-import {
-  View,
-  LogBox,
-  Animated,
-  Easing,
-  StyleSheet,
-  Alert,
-} from "react-native";
+import { Container, Header, Content, Button, Text, Footer, List,
+  ListItem, Item, Input, CheckBox, Body, FooterTab } from "native-base";
+import { View, LogBox, Animated, Easing, StyleSheet, Alert } from "react-native";
 
 class WeekLessonPlan extends Component {
   state = {
