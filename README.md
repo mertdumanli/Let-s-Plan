@@ -48,3 +48,6 @@ for "ngrok http 3000"
   
 3)  Running Server (MongoDB)
 for "nodemon app"  
+  
+Project Definition
+There were 2 different planning systems in my project. One is where daily plans can be made and includes the concept of time in the day. (I named it streaming. This is because streaming is generally more accurate daily.) The other is a system where weekly plans can be made and the maximum number of jobs that can be done in a day rather than the concept of time can be entered. (I named it a lesson. This is because lessons are always created on a weekly basis.).
