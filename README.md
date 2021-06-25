@@ -25,6 +25,7 @@ npm install --save native-base
 react-native link native-base  
 npm install -g create-react-app  
 expo install expo-font  
+expo install expo-print  
   
 -For localhost-  
 npm install ngrok -g  
