@@ -617,7 +617,7 @@ const Streaming = (props) => {
                   <Text
                     style={{ color: "red", fontSize: 18, fontWeight: "bold" }}
                   >
-                    ~ Disagner Name ~
+                    ~ Designer Name ~
                   </Text>
                   <Text
                     style={{ color: "blue", fontSize: 18, fontWeight: "bold" }}

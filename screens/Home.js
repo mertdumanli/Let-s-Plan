@@ -110,9 +110,9 @@ const Home = () => {
     const data = new FormData();
     data.append("file", image);
     data.append("upload_preset", "LetsPlanPhotos");
-    data.append("cloud_name", "azizpierre");
+    data.append("cloud_name", "yourCloudinaryUsername");
 
-    fetch("https://api.cloudinary.com/v1_1/azizpierre/image/upload", {
+    fetch("https://api.cloudinary.com/v1_1/yourCloudinaryUsername/image/upload", {
       method: "post",
       body: data,
     })
